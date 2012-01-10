@@ -73,7 +73,7 @@ public class CifsInteraction {
 			SmbFileInputStream in = new SmbFileInputStream(smbFile);
 			BufferedInputStream bis = new BufferedInputStream(in);
 
-			// the actual copy 
+			// the actual copy
 			int byte_;
 			while ((byte_ = bis.read()) != -1) {
 				bos.write(byte_);
