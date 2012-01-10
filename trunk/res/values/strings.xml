@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="hello">Hello World, MusicShareSyncActivity!</string>
     <string name="app_name">Music Share Sync</string>
+    <string name="PasswordLabel">Password</string>
+	<string name="UsernameLabel">Username</string>
+	<string name="WorkgroupLabel">Workgroup</string>
+	<string name="HostnameLabel">Hostname</string>
+	<string name="PathLabel">Path</string>
+	<string name="SaveSettingsLabel">Save</string>
+	<string name="StartingPathLabel">Starting Path</string>
 </resources>

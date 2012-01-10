@@ -1,4 +1,5 @@
 package com.android;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -6,8 +7,8 @@ public class Artist {
 	String artistName;
 	String artistPath;
 	boolean artistSync;
-	List <Album> def = new ArrayList<Album> ();
-	
+	List<Album> def = new ArrayList<Album>();
+
 	public String getArtistName() {
 		return artistName;
 	}
@@ -31,12 +32,12 @@ public class Artist {
 	public void setArtistSync(boolean artistSync) {
 		this.artistSync = artistSync;
 	}
-	
-	public void addAlbum (Album newAlbum) {
+
+	public void addAlbum(Album newAlbum) {
 		def.add(newAlbum);
 	}
-	
-    public void setAllAlbumsSync(boolean setBoolean ) {	
-    	
-    }
+
+	public void setAllAlbumsSync(boolean setBoolean) {
+
+	}
 }
