@@ -15,6 +15,7 @@
             </intent-filter>
         </activity>
         <activity android:name="SettingsScreenActivity"></activity>
+        <activity android:name="MusicScreenActivity"></activity>
 
     </application>
 </manifest>

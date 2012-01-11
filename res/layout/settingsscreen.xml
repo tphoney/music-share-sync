@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:orientation="vertical"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+    <TextView android:text="@string/HostnameLabel" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:id="@+id/tvHostname"></TextView>
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etHostname">
+        <requestFocus></requestFocus>
+    </EditText>
+    <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/WorkgroupLabel" android:id="@+id/tvWorkgroup"></TextView>
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etWorkgroup"></EditText>
+    <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/UsernameLabel" android:id="@+id/tvUsername"></TextView>
+    <EditText android:layout_height="wrap_content" android:layout_width="228dp" android:id="@+id/etUsername">
+    </EditText>
+    <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/PasswordLabel" android:id="@+id/tvPassword"></TextView>
+    <EditText android:id="@+id/etPassword" android:layout_width="match_parent" android:layout_height="wrap_content"></EditText>
+    <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:id="@+id/tvStartingPath" android:text="@string/StartingPathLabel"></TextView>
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etStartingPath"></EditText>
+    <Button android:id="@+id/buttonSaveSettings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/SaveSettingsLabel"></Button>
+    
+</TableLayout>

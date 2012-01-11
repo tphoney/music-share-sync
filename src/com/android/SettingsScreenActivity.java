@@ -58,16 +58,10 @@ public class SettingsScreenActivity extends Activity {
 	                // Commit the edits!
 	                editor.commit();
 	                
-	                //go back to main screen
-//	                Intent i = new Intent();
-//	                i.setClassName("com.screenssample", "com.screenssample.screen2");
-//	                startActivity(i);
+	                finish();
 	            }
 	        });
 	}
-	
-	
-	//on save event
-	
+		
 
 }
