@@ -40,13 +40,13 @@ public class CifsInteraction {
 				authentication);
 		SmbFile[] pathContents = path.listFiles();
 		for (SmbFile smbFile : pathContents) {
-			if (smbFile.isDirectory()) {
-				returnVal.add(smbFile.getName());
-			}
+			returnVal.add(smbFile.getName());
 		}
 		return returnVal;
 	}
 
+
+	
 	public boolean copyFileTo(String srcHost, String remoteFilePath,
 			String localDir) throws IOException {
 		boolean copySuccessful = false;
@@ -109,4 +109,11 @@ public class CifsInteraction {
 		returnVal = input.substring(0, input.lastIndexOf('/'));
 		return returnVal;
 	}
+	
+	private String smbEscapeString (String input){
+		String returnVal = input;
+		returnVal = input.replace(" ", "\\ ");
+		return returnVal;
+	}
+	
 }
