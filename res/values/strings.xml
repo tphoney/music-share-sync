@@ -8,4 +8,10 @@
 	<string name="PathLabel">Path</string>
 	<string name="SaveSettingsLabel">Save</string>
 	<string name="StartingPathLabel">Starting Path</string>
+	<string name="preferences_remote_hostname">Test-pc</string>
+	<string name="preferences_target_domain">workgroup</string>
+	<string name="preferences_remote_username">guest</string>
+	<string name="preferences_remote_password"></string>
+	<string name="preferences_remote_basedir"></string>
+	<string name="preferences_local_basedir">MusicShareSync</string>
 </resources>
