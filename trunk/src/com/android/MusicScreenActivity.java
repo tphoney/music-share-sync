@@ -18,16 +18,9 @@ import android.widget.ListView;
 public class MusicScreenActivity extends ListActivity {
 
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
-	String remoteHostname = "test-pc";
-	String remoteBaseDirectory = "Music/";
-	String targetDomain = "workgroup";
-	String remoteUsername = "guest";
-	String remotePassword = "";
-	String localBaseDirectory = "MusicShareSync";
 	CifsInteraction cifsInteraction;
 	SharedPreferences settings;
 	
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -36,10 +29,10 @@ public class MusicScreenActivity extends ListActivity {
 		settings = getSharedPreferences(PREFS_NAME, 0);
 		try {
 			cifsInteraction.createConnection(
-					settings.getString("targetDomain", targetDomain),
-					settings.getString("remoteUsername", remoteUsername),
-					settings.getString("remotePassword", remotePassword),
-					settings.getString("remoteHostname", remoteHostname));
+					settings.getString("targetDomain", getString (R.string.preferences_target_domain)),
+					settings.getString("remoteUsername", getString (R.string.preferences_remote_username)),
+					settings.getString("remotePassword", getString (R.string.preferences_remote_password)),
+					settings.getString("remoteHostname", getString (R.string.preferences_remote_hostname)));
 		} catch (SmbException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -50,8 +43,8 @@ public class MusicScreenActivity extends ListActivity {
 		List<String> temp = new ArrayList<String>();
 		try {
 			temp = cifsInteraction.getListOfDirs(settings.getString("remoteHostname",
-					remoteHostname), settings.getString("remoteBaseDirectory",
-					remoteBaseDirectory));
+					getString (R.string.preferences_remote_hostname)), settings.getString("remoteBaseDirectory",
+							getString (R.string.preferences_remote_basedir)));
 		} catch (MalformedURLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,7 +64,7 @@ public class MusicScreenActivity extends ListActivity {
 		String item = (String) getListAdapter().getItem(position);
 		List<String> temp = new ArrayList<String>();
         String newpath = settings.getString("remoteBaseDirectory",
-					remoteBaseDirectory) +  "/" + item;
+        		getString (R.string.preferences_remote_basedir)) +  "/" + item;
 //		 Dialog dialog = new Dialog(MusicScreenActivity.this);
 //         dialog.setTitle("Clicked: " + newpath);
 //         dialog.setCancelable(true);
@@ -79,7 +72,7 @@ public class MusicScreenActivity extends ListActivity {
  		
          try {
  			temp = cifsInteraction.getListOfDirs(settings.getString("remoteHostname",
- 					remoteHostname), newpath) ;
+ 					getString (R.string.preferences_remote_hostname)), newpath) ;
  		} catch (MalformedURLException e) {
  			// TODO Auto-generated catch block
  			e.printStackTrace();
@@ -95,8 +88,8 @@ public class MusicScreenActivity extends ListActivity {
 //        		dialog.setTitle("Clicked: " + fullRemote);
 //                dialog.setCancelable(true);
 //                dialog.show();
-        		cifsInteraction.copyFileTo(settings.getString("remoteHostname", remoteUsername),
-        				fullRemote, localBaseDirectory);
+        		cifsInteraction.copyFileTo(settings.getString("remoteHostname", getString (R.string.preferences_remote_hostname)),
+        				fullRemote, getString (R.string.preferences_local_basedir));
 			}
  			
  		} catch (IOException e) {

@@ -11,12 +11,6 @@ import android.widget.EditText;
 public class SettingsScreenActivity extends Activity {
 
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
-	String remoteHostname = "test-pc";
-	String remoteBaseDirectory = "Music";
-	String targetDomain = "workgroup";
-	String remoteUsername = "guest";
-	String remotePassword = "";
-	String localBaseDirectory = "MusicShareSync";
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -28,19 +22,19 @@ public class SettingsScreenActivity extends Activity {
 	       SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
 	       
 	       final EditText etHostname = (EditText) findViewById(R.id.etHostname); 
-	       etHostname.setText(settings.getString("remoteHostname", remoteHostname));
+	       etHostname.setText(settings.getString("remoteHostname", getString (R.string.preferences_remote_hostname)));
 	       
 	       final EditText etRemoteBaseDirectory = (EditText) findViewById(R.id.etStartingPath); 
-	       etRemoteBaseDirectory.setText(settings.getString("remoteBaseDirectory", remoteBaseDirectory));
+	       etRemoteBaseDirectory.setText(settings.getString("remoteBaseDirectory", getString (R.string.preferences_remote_basedir)));
 	       
 	       final EditText etTargetDomain = (EditText) findViewById(R.id.etWorkgroup); 
-	       etTargetDomain.setText(settings.getString("targetDomain", targetDomain));
+	       etTargetDomain.setText(settings.getString("targetDomain", getString (R.string.preferences_target_domain)));
 	       
 	       final EditText etRemoteUsername = (EditText) findViewById(R.id.etUsername); 
-	       etRemoteUsername.setText(settings.getString("remoteUsername", remoteUsername));
+	       etRemoteUsername.setText(settings.getString("remoteUsername", getString (R.string.preferences_remote_username)));
 	       
 	       final EditText etPassword = (EditText) findViewById(R.id.etPassword); 
-	       etPassword.setText(settings.getString("remotePassword", remotePassword));
+	       etPassword.setText(settings.getString("remotePassword", getString (R.string.preferences_remote_password)));
 	       
 	       Button buttonSaveSettings = (Button) findViewById(R.id.buttonSaveSettings);
 	       buttonSaveSettings.setOnClickListener(new OnClickListener() {

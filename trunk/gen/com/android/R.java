@@ -41,5 +41,11 @@ public final class R {
         public static final int UsernameLabel=0x7f040002;
         public static final int WorkgroupLabel=0x7f040003;
         public static final int app_name=0x7f040000;
+        public static final int preferences_local_basedir=0x7f04000d;
+        public static final int preferences_remote_basedir=0x7f04000c;
+        public static final int preferences_remote_hostname=0x7f040008;
+        public static final int preferences_remote_password=0x7f04000b;
+        public static final int preferences_remote_username=0x7f04000a;
+        public static final int preferences_target_domain=0x7f040009;
     }
 }
