@@ -6,7 +6,9 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +35,7 @@ public class CifsInteraction {
 
 	}
 
-	public List<String> getListOfDirs(String host, String baseDir)
+	public List<String> getDirectoryContents(String host, String baseDir)
 			throws MalformedURLException, SmbException {
 		List<String> returnVal = new ArrayList<String>();
 		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir),
@@ -45,6 +47,12 @@ public class CifsInteraction {
 		return returnVal;
 	}
 
+	public boolean isLeaf(String host, String baseDir)
+			throws MalformedURLException, SmbException {
+		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir),
+				authentication);
+		return path.isFile();
+	}
 
 	
 	public boolean copyFileTo(String srcHost, String remoteFilePath,
@@ -69,7 +77,7 @@ public class CifsInteraction {
 			// set up where we read from
 			SmbFile smbFile = new SmbFile("smb://" + srcHost + remoteFilePath,
 					authentication);
-
+			
 			SmbFileInputStream in = new SmbFileInputStream(smbFile);
 			BufferedInputStream bis = new BufferedInputStream(in);
 
@@ -89,12 +97,27 @@ public class CifsInteraction {
 
 	private String smbifyPath(String input) {
 		String returnVal = input;
-		// TODO smbify path
-		// do stuff correct and other balls
-		// basically end up with /afasfs/afsfaf/
-		returnVal = "/" + input + "/";
+
+		// TODO replace with proper library
+		if (returnVal.charAt(0) != '/') {
+			returnVal = '/' + returnVal; 
+		}
+		int length = returnVal.length()-1;
+		if (returnVal.charAt(length) != '/') {
+			returnVal = returnVal + '/';  
+		}
+			
+		
+        if (returnVal.contains(" "))   {
+        	returnVal.replaceAll(" ", "\\ ");
+        }
+        if (returnVal.contains("//"))   {
+        	returnVal.replaceAll("/*", "/");
+        }
 		return returnVal;
 	}
+	
+	
 
 	private String getFileName(String input) {
 		String returnVal = input;
@@ -110,10 +133,16 @@ public class CifsInteraction {
 		return returnVal;
 	}
 	
-	private String smbEscapeString (String input){
-		String returnVal = input;
-		returnVal = input.replace(" ", "\\ ");
+	public String getParent(String host, String baseDir)
+			throws MalformedURLException, SmbException {
+		String returnVal = baseDir;
+		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir),
+				authentication);
+		returnVal = path.getParent();
+		returnVal = returnVal.substring(returnVal.lastIndexOf(host), returnVal.length()-1);
+		returnVal = returnVal.replaceAll(host, "");
+		returnVal = returnVal + '/';
 		return returnVal;
 	}
-	
+		
 }
