@@ -6,20 +6,18 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
-import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.os.Environment;
 import jcifs.UniAddress;
 import jcifs.smb.NtlmPasswordAuthentication;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbSession;
+import android.os.Environment;
 
 public class CifsInteraction {
 	private NtlmPasswordAuthentication authentication;
@@ -55,7 +53,7 @@ public class CifsInteraction {
 	}
 
 	
-	public boolean copyFileTo(String srcHost, String remoteFilePath,
+	public boolean copyFileTo(String srcHost, String remoteFilePath,String remoteFileName,
 			String localDir) throws IOException {
 		boolean copySuccessful = false;
 
