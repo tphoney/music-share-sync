@@ -3,20 +3,14 @@ package com.android;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 
 import jcifs.smb.SmbException;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
-import android.view.View.OnLongClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
@@ -75,11 +69,7 @@ public class MusicScreenActivity extends ListActivity {
 						getString(R.string.preferences_remote_hostname)),
 						currentWorkingDirectory)) {
 
-					cifsInteraction.copyFileTo(settings.getString(
-							"remoteHostname",
-							getString(R.string.preferences_remote_hostname)),
-							currentWorkingDirectory,
-							getString(R.string.preferences_local_basedir));
+					copyFile(itemClicked);
 					Dialog dialog = new Dialog(MusicScreenActivity.this);
 					dialog.setTitle("Clicked: " + currentWorkingDirectory);
 					dialog.setCancelable(true);
@@ -121,6 +111,19 @@ public class MusicScreenActivity extends ListActivity {
 
 	}
 
+	protected void copyFile(String fileToCopy) {
+		try {
+			cifsInteraction.copyFileTo(settings.getString(
+					"remoteHostname",
+					getString(R.string.preferences_remote_hostname)),
+					currentWorkingDirectory, fileToCopy,
+					getString(R.string.preferences_local_basedir));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			displayErrorMessage(e.getMessage());
+		}
+	}
+	
 	protected void displayFolderContents() {
 		try {
 			List<String> directoryContents = cifsInteraction
@@ -136,14 +139,12 @@ public class MusicScreenActivity extends ListActivity {
 					android.R.layout.simple_list_item_1, directoryContents);
 			setListAdapter(directoryList);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			displayErrorMessage(e.getMessage());
 		} catch (SmbException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			displayErrorMessage(e.getMessage());
 		}
-		// add in back button
-
 	}
 	
 	protected String getMuckyParent() {
@@ -154,13 +155,20 @@ public class MusicScreenActivity extends ListActivity {
 							getString(R.string.preferences_remote_hostname)),
 							currentWorkingDirectory);
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			displayErrorMessage(e.getMessage());
 		} catch (SmbException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			displayErrorMessage(e.getMessage());
 		}
 		return returnVal;
+	}
+	
+	protected void displayErrorMessage (String problem) {
+		Dialog dialog = new Dialog(MusicScreenActivity.this);
+		dialog.setTitle("Something went wrong: " + problem);
+		dialog.setCancelable(true);
+		dialog.show();
 	}
 
 }
