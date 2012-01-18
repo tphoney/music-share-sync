@@ -52,14 +52,13 @@ public class CifsInteraction {
 		return path.isFile();
 	}
 
-	
-	public boolean copyFileTo(String srcHost, String remoteFilePath,String remoteFileName,
-			String localDir) throws IOException {
+	public boolean copyFileTo(String srcHost, String remoteFilePath,
+			String remoteFileName, String localDir) throws IOException {
 		boolean copySuccessful = false;
 
 		File root = Environment.getExternalStorageDirectory();
 		File localFilePath = new File(root.getPath() + "/" + localDir + "/"
-				+ getArtistAlbum(remoteFilePath));
+				+ remoteFilePath);
 		if (!localFilePath.exists()) {
 			// create folder structure if necessary
 			localFilePath.mkdirs();
@@ -67,15 +66,14 @@ public class CifsInteraction {
 
 		if (localFilePath.canWrite()) {
 			// setup where we write too.
-			File outputFile = new File(localFilePath,
-					getFileName(remoteFilePath));
+			File outputFile = new File(localFilePath, remoteFileName);
 			FileOutputStream fos = new FileOutputStream(outputFile);
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 
 			// set up where we read from
-			SmbFile smbFile = new SmbFile("smb://" + srcHost + remoteFilePath,
-					authentication);
-			
+			SmbFile smbFile = new SmbFile("smb://" + srcHost + smbifyPath(remoteFilePath)
+					+ "/" + smbifyPath(remoteFileName), authentication);
+
 			SmbFileInputStream in = new SmbFileInputStream(smbFile);
 			BufferedInputStream bis = new BufferedInputStream(in);
 
@@ -98,49 +96,34 @@ public class CifsInteraction {
 
 		// TODO replace with proper library
 		if (returnVal.charAt(0) != '/') {
-			returnVal = '/' + returnVal; 
+			returnVal = '/' + returnVal;
 		}
-		int length = returnVal.length()-1;
+		int length = returnVal.length() - 1;
 		if (returnVal.charAt(length) != '/') {
-			returnVal = returnVal + '/';  
+			returnVal = returnVal + '/';
 		}
-			
-		
-        if (returnVal.contains(" "))   {
-        	returnVal.replaceAll(" ", "\\ ");
-        }
-        if (returnVal.contains("//"))   {
-        	returnVal.replaceAll("/*", "/");
-        }
-		return returnVal;
-	}
-	
-	
 
-	private String getFileName(String input) {
-		String returnVal = input;
-		// get the filename
-		returnVal = input.substring(input.lastIndexOf('/'), input.length());
+		if (returnVal.contains(" ")) {
+			returnVal.replaceAll(" ", "\\ ");
+		}
+		if (returnVal.contains("//")) {
+			returnVal.replaceAll("/*", "/");
+		}
 		return returnVal;
 	}
 
-	private String getArtistAlbum(String input) {
-		String returnVal = input;
-		// get the filename
-		returnVal = input.substring(0, input.lastIndexOf('/'));
-		return returnVal;
-	}
-	
+
 	public String getParent(String host, String baseDir)
 			throws MalformedURLException, SmbException {
 		String returnVal = baseDir;
 		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir),
 				authentication);
 		returnVal = path.getParent();
-		returnVal = returnVal.substring(returnVal.lastIndexOf(host), returnVal.length()-1);
+		returnVal = returnVal.substring(returnVal.lastIndexOf(host),
+				returnVal.length() - 1);
 		returnVal = returnVal.replaceAll(host, "");
 		returnVal = returnVal + '/';
 		return returnVal;
 	}
-		
+
 }
