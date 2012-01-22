@@ -6,14 +6,16 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
-import java.util.Iterator;
 import java.util.List;
 
 import jcifs.smb.SmbException;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -82,7 +84,7 @@ public class MusicScreenActivity extends ListActivity {
 		dialog.setTitle("Syncing: " + itemClicked);
 		dialog.setCancelable(true);
 		dialog.show();
-
+		refreshMedia();
 	}
 
 	protected void onListItemClick(ListView l, View v, int position, long id) {
@@ -107,7 +109,7 @@ public class MusicScreenActivity extends ListActivity {
 			returnVal = cifsInteraction.isLeaf(settings.getString(
 					"remoteHostname",
 					getString(R.string.preferences_remote_hostname)),
-					currentWorkingDirectory , itemClicked);
+					currentWorkingDirectory, itemClicked);
 		} catch (MalformedURLException e) {
 			displayErrorMessage(e);
 		} catch (SmbException e) {
@@ -149,7 +151,7 @@ public class MusicScreenActivity extends ListActivity {
 		} catch (IOException e) { // TODO Auto-generated catch block
 			displayErrorMessage(e);
 		}
-
+		refreshMedia();
 	}
 
 	protected void displayFolderContents() {
@@ -158,7 +160,7 @@ public class MusicScreenActivity extends ListActivity {
 					.getDirectoryContents(settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)),
 							currentWorkingDirectory);
-	
+
 			if (!currentWorkingDirectory.equals(settings.getString(
 					"remoteBaseDirectory",
 					getString(R.string.preferences_remote_basedir)))) {
@@ -174,6 +176,7 @@ public class MusicScreenActivity extends ListActivity {
 			e.printStackTrace();
 			displayErrorMessage(e);
 		}
+		getListView().setFastScrollEnabled(true);
 	}
 
 	protected String getMuckyParent() {
@@ -205,6 +208,12 @@ public class MusicScreenActivity extends ListActivity {
 		dialog.setContentView(tx);
 		dialog.setCancelable(true);
 		dialog.show();
+	}
+
+	private void refreshMedia() {
+		sendBroadcast(new Intent(
+				Intent.ACTION_MEDIA_MOUNTED,
+				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
 }
