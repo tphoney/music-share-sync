@@ -12,6 +12,6 @@
 	<string name="preferences_target_domain">workgroup</string>
 	<string name="preferences_remote_username">guest</string>
 	<string name="preferences_remote_password"></string>
-	<string name="preferences_remote_basedir"></string>
+	<string name="preferences_remote_basedir">/music/</string>
 	<string name="preferences_local_basedir">MusicShareSync</string>
 </resources>
