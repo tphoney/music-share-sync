@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
+import java.util.Iterator;
 import java.util.List;
 
 import jcifs.smb.SmbException;
@@ -66,12 +67,19 @@ public class MusicScreenActivity extends ListActivity {
 
 	protected void onLongListItemClick(ListView l, View v, int position, long id) {
 		String itemClicked = (String) getListAdapter().getItem(position);
-		if (! isClickedItemALeaf(itemClicked)) {
-			//sync entire dir
-			
-		} 
+		if (!isClickedItemALeaf(itemClicked)) {
+			// sync entire dir
+			try {
+				cifsInteraction.copyFolder(settings.getString("remoteHostname",
+						getString(R.string.preferences_remote_hostname)),
+						currentWorkingDirectory, itemClicked,
+						getString(R.string.preferences_local_basedir));
+			} catch (IOException e) { // TODO Auto-generated catch block
+				displayErrorMessage(e);
+			}
+		}
 		Dialog dialog = new Dialog(MusicScreenActivity.this);
-		dialog.setTitle("Long press: " + itemClicked);
+		dialog.setTitle("Syncing: " + itemClicked);
 		dialog.setCancelable(true);
 		dialog.show();
 
@@ -100,7 +108,7 @@ public class MusicScreenActivity extends ListActivity {
 					"remoteHostname",
 					getString(R.string.preferences_remote_hostname)),
 					(currentWorkingDirectory + "/" + itemClicked));
-		} catch (MalformedURLException e) {			
+		} catch (MalformedURLException e) {
 			displayErrorMessage(e);
 		} catch (SmbException e) {
 			displayErrorMessage(e);
@@ -108,16 +116,40 @@ public class MusicScreenActivity extends ListActivity {
 		return returnVal;
 	}
 
-	protected void copyFile(String fileToCopy) {
+	protected void copyFile(final String fileToCopy) {
+
+		// CifsInteraction temp = new CifsInteraction();
+		// try {
+		// temp.createConnection(settings.getString("targetDomain",
+		// getString(R.string.preferences_target_domain)), settings
+		// .getString("remoteUsername",
+		// getString(R.string.preferences_remote_username)),
+		// settings.getString("remotePassword",
+		// getString(R.string.preferences_remote_password)),
+		// settings.getString("remoteHostname",
+		// getString(R.string.preferences_remote_hostname)));
+		// temp.setContext(MusicScreenActivity.this);
+		// temp.execute(settings.getString("remoteHostname",
+		// getString(R.string.preferences_remote_hostname)),
+		// currentWorkingDirectory, fileToCopy,
+		// getString(R.string.preferences_local_basedir));
+		// } catch (SmbException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// } catch (UnknownHostException e) {
+		// // TODO Auto-generated catch block
+		// e.printStackTrace();
+		// }
+
 		try {
 			cifsInteraction.copyFileTo(settings.getString("remoteHostname",
 					getString(R.string.preferences_remote_hostname)),
 					currentWorkingDirectory, fileToCopy,
 					getString(R.string.preferences_local_basedir));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) { // TODO Auto-generated catch block
 			displayErrorMessage(e);
 		}
+
 	}
 
 	protected void displayFolderContents() {
