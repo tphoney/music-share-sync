@@ -15,13 +15,7 @@ public class MusicShareSyncActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		setContentView(R.layout.main);
-		// ImageView image = (ImageView) findViewById(R.drawable.background);
-		// setContentView(image);
-
-		
-
 	}
 
 	@Override
