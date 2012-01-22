@@ -107,7 +107,7 @@ public class MusicScreenActivity extends ListActivity {
 			returnVal = cifsInteraction.isLeaf(settings.getString(
 					"remoteHostname",
 					getString(R.string.preferences_remote_hostname)),
-					(currentWorkingDirectory + "/" + itemClicked));
+					currentWorkingDirectory , itemClicked);
 		} catch (MalformedURLException e) {
 			displayErrorMessage(e);
 		} catch (SmbException e) {
@@ -158,6 +158,7 @@ public class MusicScreenActivity extends ListActivity {
 					.getDirectoryContents(settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)),
 							currentWorkingDirectory);
+	
 			if (!currentWorkingDirectory.equals(settings.getString(
 					"remoteBaseDirectory",
 					getString(R.string.preferences_remote_basedir)))) {

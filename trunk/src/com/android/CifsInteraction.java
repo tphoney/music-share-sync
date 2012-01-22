@@ -48,9 +48,9 @@ class CifsInteraction extends AsyncTask<String, String, String> {
 		return returnVal;
 	}
 
-	public boolean isLeaf(String host, String baseDir)
+	public boolean isLeaf(String host, String baseDir, String itemClicked)
 			throws MalformedURLException, SmbException {
-		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir),
+		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir) + "/" + itemClicked,
 				authentication);
 		return path.isFile();
 	}
