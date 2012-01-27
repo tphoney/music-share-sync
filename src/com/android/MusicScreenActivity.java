@@ -11,9 +11,11 @@ import java.util.List;
 import jcifs.smb.SmbException;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -22,17 +24,20 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MusicScreenActivity extends ListActivity {
+public class MusicScreenActivity extends ListActivity{
 
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
 	private CifsInteraction cifsInteraction;
 	private SharedPreferences settings;
 	private String currentWorkingDirectory;
+	private String fileToCopy;
+	public static MusicScreenActivity CONTEXT;
+	private ProgressDialog progressDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
+		CONTEXT = this;
 		cifsInteraction = new CifsInteraction();
 		settings = getSharedPreferences(PREFS_NAME, 0);
 		currentWorkingDirectory = settings.getString("remoteBaseDirectory",
@@ -63,6 +68,7 @@ public class MusicScreenActivity extends ListActivity {
 				return false;
 			}
 		});
+
 		displayFolderContents();
 
 	}
@@ -119,38 +125,12 @@ public class MusicScreenActivity extends ListActivity {
 	}
 
 	protected void copyFile(final String fileToCopy) {
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setTitle("Copying File...");
+		progressDialog.show();
+		this.fileToCopy = fileToCopy;
+		new ProgressTask().execute();
 
-		// CifsInteraction temp = new CifsInteraction();
-		// try {
-		// temp.createConnection(settings.getString("targetDomain",
-		// getString(R.string.preferences_target_domain)), settings
-		// .getString("remoteUsername",
-		// getString(R.string.preferences_remote_username)),
-		// settings.getString("remotePassword",
-		// getString(R.string.preferences_remote_password)),
-		// settings.getString("remoteHostname",
-		// getString(R.string.preferences_remote_hostname)));
-		// temp.setContext(MusicScreenActivity.this);
-		// temp.execute(settings.getString("remoteHostname",
-		// getString(R.string.preferences_remote_hostname)),
-		// currentWorkingDirectory, fileToCopy,
-		// getString(R.string.preferences_local_basedir));
-		// } catch (SmbException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// } catch (UnknownHostException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
-
-		try {
-			cifsInteraction.copyFileTo(settings.getString("remoteHostname",
-					getString(R.string.preferences_remote_hostname)),
-					currentWorkingDirectory, fileToCopy,
-					getString(R.string.preferences_local_basedir));
-		} catch (IOException e) { // TODO Auto-generated catch block
-			displayErrorMessage(e);
-		}
 		refreshMedia();
 	}
 
@@ -215,5 +195,47 @@ public class MusicScreenActivity extends ListActivity {
 				Intent.ACTION_MEDIA_MOUNTED,
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
+
+	class ProgressTask extends AsyncTask<Integer, Integer, Void> {
+
+		@Override
+		protected void onPreExecute() {
+			// initialize the progress bar
+			// set maximum progress to 100.
+		//	cifsInteraction.setListener(this);
+		}
+
+		@Override
+		protected Void doInBackground(Integer... params) {
+			try {
+				cifsInteraction.copyFileTo(settings.getString("remoteHostname",
+						getString(R.string.preferences_remote_hostname)),
+						currentWorkingDirectory, fileToCopy,
+						getString(R.string.preferences_local_basedir));
+			} catch (IOException e) { // TODO Auto-generated catch block
+				displayErrorMessage(e);
+			}
+			return null;
+		}
+
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			// increment progress bar by progress value
+			progressDialog.setProgress(values[0]);
+
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			progressDialog.dismiss();
+		}
+
+		public void updateProgressBaryFailyMonkeyPoops(int progress) {
+			// TODO Auto-generated method stub
+			publishProgress(progress);
+		}
+
+	}
+
 
 }
