@@ -24,7 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class MusicScreenActivity extends ListActivity{
+public class MusicScreenActivity extends ListActivity {
 
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
 	private CifsInteraction cifsInteraction;
@@ -125,9 +125,7 @@ public class MusicScreenActivity extends ListActivity{
 	}
 
 	protected void copyFile(final String fileToCopy) {
-		progressDialog = new ProgressDialog(this);
-		progressDialog.setTitle("Copying File...");
-		progressDialog.show();
+
 		this.fileToCopy = fileToCopy;
 		new ProgressTask().execute();
 
@@ -196,13 +194,19 @@ public class MusicScreenActivity extends ListActivity{
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
-	class ProgressTask extends AsyncTask<Integer, Integer, Void> {
+	class ProgressTask extends AsyncTask<Integer, Integer, Void> implements
+			ProgressListenerPoo {
 
 		@Override
 		protected void onPreExecute() {
+
 			// initialize the progress bar
 			// set maximum progress to 100.
-		//	cifsInteraction.setListener(this);
+			cifsInteraction.setListener(this);
+			progressDialog = new ProgressDialog(MusicScreenActivity.this);
+			progressDialog.setTitle("Copying File...");
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog.show();
 		}
 
 		@Override
@@ -235,7 +239,11 @@ public class MusicScreenActivity extends ListActivity{
 			publishProgress(progress);
 		}
 
-	}
+		public void updateProgress(int doneSoFar) {
+			// TODO Auto-generated method stub
+			publishProgress(doneSoFar);
 
+		}
+	}
 
 }
