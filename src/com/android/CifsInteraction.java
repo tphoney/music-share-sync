@@ -20,7 +20,6 @@ import android.os.Environment;
 
 class CifsInteraction  {
 	private NtlmPasswordAuthentication authentication;
-	private ProgressListenerPoo poo;
 	public void createConnection(String domain, String username,
 			String password, String host) throws SmbException,
 			UnknownHostException {
@@ -92,7 +91,6 @@ class CifsInteraction  {
 				copied+= byte_;
 				int percentageComplete = (int)((copied*100)/fileSize);
 				//do something update progress bar
-				poo.updateProgress(percentageComplete);
 			}
 
 			bos.close();
@@ -153,11 +151,6 @@ class CifsInteraction  {
 		returnVal = returnVal.replaceAll(host, "");
 		returnVal = returnVal + '/';
 		return returnVal;
-	}
-
-	public void setListener(ProgressListenerPoo musicScreenActivity) {
-		// TODO Auto-generated method stub
-		poo = musicScreenActivity;
 	}
 
 }

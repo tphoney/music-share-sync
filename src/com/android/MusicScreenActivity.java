@@ -11,11 +11,9 @@ import java.util.List;
 import jcifs.smb.SmbException;
 import android.app.Dialog;
 import android.app.ListActivity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -30,14 +28,10 @@ public class MusicScreenActivity extends ListActivity {
 	private CifsInteraction cifsInteraction;
 	private SharedPreferences settings;
 	private String currentWorkingDirectory;
-	private String fileToCopy;
-	public static MusicScreenActivity CONTEXT;
-	private ProgressDialog progressDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		CONTEXT = this;
 		cifsInteraction = new CifsInteraction();
 		settings = getSharedPreferences(PREFS_NAME, 0);
 		currentWorkingDirectory = settings.getString("remoteBaseDirectory",
@@ -126,9 +120,15 @@ public class MusicScreenActivity extends ListActivity {
 
 	protected void copyFile(final String fileToCopy) {
 
-		this.fileToCopy = fileToCopy;
-		new ProgressTask().execute();
-
+		try {
+			cifsInteraction.copyFileTo(settings.getString("remoteHostname",
+					getString(R.string.preferences_remote_hostname)),
+					currentWorkingDirectory, fileToCopy,
+					getString(R.string.preferences_local_basedir));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			displayErrorMessage(e);
+		}
 		refreshMedia();
 	}
 
@@ -194,56 +194,5 @@ public class MusicScreenActivity extends ListActivity {
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
-	class ProgressTask extends AsyncTask<Integer, Integer, Void> implements
-			ProgressListenerPoo {
-
-		@Override
-		protected void onPreExecute() {
-
-			// initialize the progress bar
-			// set maximum progress to 100.
-			cifsInteraction.setListener(this);
-			progressDialog = new ProgressDialog(MusicScreenActivity.this);
-			progressDialog.setTitle("Copying File...");
-			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			progressDialog.show();
-		}
-
-		@Override
-		protected Void doInBackground(Integer... params) {
-			try {
-				cifsInteraction.copyFileTo(settings.getString("remoteHostname",
-						getString(R.string.preferences_remote_hostname)),
-						currentWorkingDirectory, fileToCopy,
-						getString(R.string.preferences_local_basedir));
-			} catch (IOException e) { // TODO Auto-generated catch block
-				displayErrorMessage(e);
-			}
-			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Integer... values) {
-			// increment progress bar by progress value
-			progressDialog.setProgress(values[0]);
-
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			progressDialog.dismiss();
-		}
-
-		public void updateProgressBaryFailyMonkeyPoops(int progress) {
-			// TODO Auto-generated method stub
-			publishProgress(progress);
-		}
-
-		public void updateProgress(int doneSoFar) {
-			// TODO Auto-generated method stub
-			publishProgress(doneSoFar);
-
-		}
-	}
 
 }
