@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="app_name">Music Share Sync</string>
     <string name="PasswordLabel">Password</string>
-	<string name="UsernameLabel">Username</string>
-	<string name="WorkgroupLabel">Workgroup</string>
-	<string name="HostnameLabel">Hostname</string>
-	<string name="PathLabel">Path</string>
-	<string name="SaveSettingsLabel">Save</string>
-	<string name="StartingPathLabel">Starting Path</string>
-	<string name="preferences_remote_hostname">Test-pc</string>
-	<string name="preferences_target_domain">workgroup</string>
-	<string name="preferences_remote_username">guest</string>
-	<string name="preferences_remote_password"></string>
-	<string name="preferences_remote_basedir">/music/</string>
-	<string name="preferences_local_basedir">MusicShareSync</string>
+    <string name="UsernameLabel">Username</string>
+    <string name="WorkgroupLabel">Workgroup</string>
+    <string name="HostnameLabel">Hostname</string>
+    <string name="PathLabel">Path</string>
+    <string name="SaveSettingsLabel">Save</string>
+    <string name="StartingPathLabel">Starting Path</string>
+    <string name="preferences_remote_hostname">Test-pc</string>
+    <string name="preferences_target_domain">workgroup</string>
+    <string name="preferences_remote_username">guest</string>
+    <string name="preferences_remote_password"></string>
+    <string name="preferences_remote_basedir">/music/</string>
+    <string name="preferences_local_basedir">MusicShareSync</string>
+
+    <integer name="progressDialogInit">0</integer>
+ 	<integer name="progressDialogDismiss">1</integer>
+    <integer name="progressDialogSetProgress">2</integer>
+    <integer name="progressDialogSetSecondaryProgress">3</integer>
+    <integer name="progressDialogSetTitle">4</integer>
+
 </resources>
