@@ -17,8 +17,11 @@ import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import jcifs.smb.SmbSession;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 
 class CifsInteraction  {
+	private Handler crapola;
 	private NtlmPasswordAuthentication authentication;
 	public void createConnection(String domain, String username,
 			String password, String host) throws SmbException,
@@ -58,7 +61,7 @@ class CifsInteraction  {
 	}
 
 	public boolean copyFileTo(String srcHost, String remoteFilePath,
-			String remoteFileName, String localDir) throws IOException {
+			String remoteFileName, String localDir, Handler crap) throws IOException {
 		boolean copySuccessful = false;
 
 		File root = Environment.getExternalStorageDirectory();
@@ -86,11 +89,15 @@ class CifsInteraction  {
 			// the actual copy
 			int byte_;
 			long copied = 0;
-			while ((byte_ = bis.read()) != -1) {
-				bos.write(byte_);
+			double percentageComplete = 0;
+			byte[] buff = new byte[2048];
+			
+			while ((byte_ = bis.read(buff)) != -1) {
+				bos.write(buff,0,byte_);
 				copied+= byte_;
-				int percentageComplete = (int)((copied*100)/fileSize);
+				percentageComplete = (int)(((double)copied/(double)fileSize)*100);
 				//do something update progress bar
+				crap.sendMessage(Message.obtain(crap, 1, ""+ (int)(percentageComplete)));
 			}
 
 			bos.close();
@@ -112,7 +119,7 @@ class CifsInteraction  {
 		SmbFile[] pathContents = path.listFiles();
 		for (SmbFile smbFile : pathContents) {
 			if (smbFile.isFile()) {
-				copyFileTo(srcHost, fullRemotePath, smbFile.getName(), localDir);
+				copyFileTo(srcHost, fullRemotePath, smbFile.getName(), localDir, null);
 			}
 		}
 
@@ -151,6 +158,11 @@ class CifsInteraction  {
 		returnVal = returnVal.replaceAll(host, "");
 		returnVal = returnVal + '/';
 		return returnVal;
+	}
+
+	public void setHandler(Handler updateProgress) {
+		// TODO Auto-generated method stub
+		crapola = updateProgress;
 	}
 
 }
