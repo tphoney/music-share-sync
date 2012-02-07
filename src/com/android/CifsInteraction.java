@@ -20,9 +20,9 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
-class CifsInteraction  {
-	private Handler crapola;
+class CifsInteraction {
 	private NtlmPasswordAuthentication authentication;
+
 	public void createConnection(String domain, String username,
 			String password, String host) throws SmbException,
 			UnknownHostException {
@@ -48,8 +48,8 @@ class CifsInteraction  {
 
 	public boolean isLeaf(String host, String baseDir, String itemClicked)
 			throws MalformedURLException, SmbException {
-		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir) + "/" + itemClicked,
-				authentication);
+		SmbFile path = new SmbFile("smb://" + host + smbifyPath(baseDir) + "/"
+				+ itemClicked, authentication);
 		return path.isFile();
 	}
 
@@ -60,9 +60,9 @@ class CifsInteraction  {
 		return path.length();
 	}
 
-	public boolean copyFileTo(String srcHost, String remoteFilePath,
-			String remoteFileName, String localDir, Handler crap) throws IOException {
-		boolean copySuccessful = false;
+	public void copyFileTo(String srcHost, String remoteFilePath,
+			String remoteFileName, String localDir, Handler progressHandler)
+			throws IOException {
 
 		File root = Environment.getExternalStorageDirectory();
 		File localFilePath = new File(root.getPath() + "/" + localDir + "/"
@@ -82,7 +82,7 @@ class CifsInteraction  {
 			SmbFile smbFile = new SmbFile("smb://" + srcHost
 					+ smbifyPath(remoteFilePath) + "/"
 					+ smbifyPath(remoteFileName), authentication);
-			long fileSize = smbFile.length(); 
+			long fileSize = smbFile.length();
 			SmbFileInputStream in = new SmbFileInputStream(smbFile);
 			BufferedInputStream bis = new BufferedInputStream(in);
 
@@ -90,26 +90,26 @@ class CifsInteraction  {
 			int byte_;
 			long copied = 0;
 			double percentageComplete = 0;
-			byte[] buff = new byte[2048];
-			
-			while ((byte_ = bis.read(buff)) != -1) {
-				bos.write(buff,0,byte_);
-				copied+= byte_;
-				percentageComplete = (int)(((double)copied/(double)fileSize)*100);
-				//do something update progress bar
-				crap.sendMessage(Message.obtain(crap, 1, ""+ (int)(percentageComplete)));
-			}
+			byte[] buff = new byte[1048 * 4];
 
+			while ((byte_ = bis.read(buff)) != -1) {
+				bos.write(buff, 0, byte_);
+				copied += byte_;
+				percentageComplete = (int) (((double) copied / (double) fileSize) * 100);
+				// do something update progress bar
+				progressHandler.sendMessage(Message.obtain(progressHandler,
+						R.integer.progressDialogSetProgress, ""
+								+ (int) (percentageComplete)));
+			}
+			bos.flush();
 			bos.close();
 			in.close();
-			copySuccessful = true;
 		}
-
-		return copySuccessful;
 	}
 
 	public boolean copyFolder(String srcHost, String remoteFilePath,
-			String remoteFolderName, String localDir) throws IOException {
+			String remoteFolderName, String localDir, Handler progressHandler)
+			throws IOException {
 		boolean copySuccessful = false;
 
 		String fullRemotePath = smbifyPath(remoteFilePath) + "/"
@@ -117,10 +117,22 @@ class CifsInteraction  {
 		SmbFile path = new SmbFile("smb://" + srcHost + fullRemotePath,
 				authentication);
 		SmbFile[] pathContents = path.listFiles();
+		// progressHandler.sendMessage(Message.obtain(progressHandler, 2,
+		// ""+pathContents.length));
+		float filesCopied = 1;
 		for (SmbFile smbFile : pathContents) {
+			progressHandler.sendMessage(Message.obtain(progressHandler,
+					R.integer.progressDialogSetTitle, "Copying: "
+							+ smbFile.getName()));
 			if (smbFile.isFile()) {
-				copyFileTo(srcHost, fullRemotePath, smbFile.getName(), localDir, null);
+				copyFileTo(srcHost, fullRemotePath, smbFile.getName(),
+						localDir, progressHandler);
 			}
+			int secondaryProgress = (int) ((filesCopied / pathContents.length) *100);
+			progressHandler.sendMessage(Message.obtain(progressHandler,
+					R.integer.progressDialogSetSecondaryProgress, ""
+							+ secondaryProgress));
+			filesCopied++;
 		}
 
 		return copySuccessful;
@@ -158,11 +170,6 @@ class CifsInteraction  {
 		returnVal = returnVal.replaceAll(host, "");
 		returnVal = returnVal + '/';
 		return returnVal;
-	}
-
-	public void setHandler(Handler updateProgress) {
-		// TODO Auto-generated method stub
-		crapola = updateProgress;
 	}
 
 }

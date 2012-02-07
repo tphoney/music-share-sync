@@ -33,13 +33,13 @@ public class MusicScreenActivity extends ListActivity {
 	private CifsInteraction cifsInteraction;
 	private SharedPreferences settings;
 	private String currentWorkingDirectory;
-	private ProgressDialog pd;
+	private ProgressDialog progressDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		cifsInteraction = new CifsInteraction();
-		cifsInteraction.setHandler (updateProgress);
+
 		settings = getSharedPreferences(PREFS_NAME, 0);
 		currentWorkingDirectory = settings.getString("remoteBaseDirectory",
 				getString(R.string.preferences_remote_basedir));
@@ -78,19 +78,27 @@ public class MusicScreenActivity extends ListActivity {
 		String itemClicked = (String) getListAdapter().getItem(position);
 		if (!isClickedItemALeaf(itemClicked)) {
 			// sync entire dir
-			try {
-				cifsInteraction.copyFolder(settings.getString("remoteHostname",
-						getString(R.string.preferences_remote_hostname)),
-						currentWorkingDirectory, itemClicked,
-						getString(R.string.preferences_local_basedir));
-			} catch (IOException e) { // TODO Auto-generated catch block
-				displayErrorMessage(e);
-			}
+			// try {
+			// cifsInteraction.copyFolder(settings.getString("remoteHostname",
+			// getString(R.string.preferences_remote_hostname)),
+			// currentWorkingDirectory, itemClicked,
+			// getString(R.string.preferences_local_basedir));
+			// } catch (IOException e) { // TODO Auto-generated catch block
+			// displayErrorMessage(e);
+			// }
+			progressDialog = new ProgressDialog(this);
+			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressDialog.setMessage("Syncing Folder");
+			progressDialog.setIndeterminate(false);
+			progressDialog.show();
+			Thread thread = new Thread(
+					new LongCopyOperation(itemClicked, false));
+			thread.start();
 		}
-		Dialog dialog = new Dialog(MusicScreenActivity.this);
-		dialog.setTitle("Syncing: " + itemClicked);
-		dialog.setCancelable(true);
-		dialog.show();
+		// Dialog dialog = new Dialog(MusicScreenActivity.this);
+		// dialog.setTitle("Syncing: " + itemClicked);
+		// dialog.setCancelable(true);
+		// dialog.show();
 		refreshMedia();
 	}
 
@@ -126,15 +134,14 @@ public class MusicScreenActivity extends ListActivity {
 	}
 
 	protected void copyFile(final String fileToCopy) {
-		pd = new ProgressDialog(this);
-		pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-		pd.setMessage("Searching Device");
-		pd.setIndeterminate(false);
-		pd.show();
-		Thread thread = new Thread(new LongTask(fileToCopy, true));
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progressDialog.setMessage("Searching Device");
+		progressDialog.setIndeterminate(false);
+		progressDialog.show();
+		Thread thread = new Thread(new LongCopyOperation(fileToCopy, true));
 		thread.start();
-		
-		
+
 		refreshMedia();
 	}
 
@@ -200,42 +207,51 @@ public class MusicScreenActivity extends ListActivity {
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
-	private Handler updateProgress = new Handler() {
+	private Handler progressHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
-			case 0:
-				pd.dismiss();
+			case R.integer.progressDialogDismiss:
+				progressDialog.dismiss();
 				break;
-			case 1:
-				pd.setProgress( Integer.parseInt(msg.obj.toString()));
+			case R.integer.progressDialogSetProgress:
+				progressDialog
+						.setProgress(Integer.parseInt(msg.obj.toString()));
 				break;
+			case R.integer.progressDialogSetSecondaryProgress:
+				progressDialog.setSecondaryProgress(Integer.parseInt(msg.obj
+						.toString()));
+			case R.integer.progressDialogSetTitle:
+				progressDialog.setMessage((CharSequence) msg.obj);
 			default:
-				pd.setProgress(0);
-				pd.setMessage((CharSequence) msg.obj);
+				progressDialog.setProgress(0);
+				progressDialog.setMessage((CharSequence) msg.obj);
 			}
 		}
 	};
-	
-	private class LongTask implements Runnable {
-		private final String fileage;
+
+	private class LongCopyOperation implements Runnable {
+		private final String thingToCopy;
 		private final boolean isFile;
-		
-		public LongTask(String filebla, boolean isFilebla) {
-			fileage = filebla;
-			isFile = isFilebla;
+
+		public LongCopyOperation(String fileName, boolean isFile) {
+			thingToCopy = fileName;
+			this.isFile = isFile;
 		}
-		
+
 		public void run() {
-			updateProgress.sendMessage(Message.obtain(updateProgress,
-					100, "copying file"));
-			
-			ExecutorService executor = Executors
-					.newFixedThreadPool(1);
-			
-				Runnable worker = new CopyFile(fileage);
+			progressHandler.sendMessage(Message.obtain(progressHandler,
+					R.integer.progressDialogInit, "Copying: " + thingToCopy));
+
+			ExecutorService executor = Executors.newFixedThreadPool(1);
+			if (isFile) {
+				Runnable worker = new CopyFile(thingToCopy);
 				executor.execute(worker);
-			
+			} else {
+				Runnable worker = new CopyFolder(thingToCopy);
+				executor.execute(worker);
+			}
+
 			// This will make the executor accept no new threads
 			// and finish all existing threads in the queue
 			executor.shutdown();
@@ -243,29 +259,51 @@ public class MusicScreenActivity extends ListActivity {
 			while (!executor.isTerminated()) {
 
 			}
-			
-			updateProgress.sendMessage(Message.obtain(updateProgress, 0, ""));
+
+			progressHandler.sendMessage(Message.obtain(progressHandler,
+					R.integer.progressDialogDismiss, ""));
 		}
 	}
-	
-	class CopyFile implements Runnable {
-		private final String filage;
 
-		public CopyFile(String inputNumber) {
-			filage = inputNumber;
+	class CopyFile implements Runnable {
+		private final String fileToCopy;
+
+		public CopyFile(String inputFile) {
+			fileToCopy = inputFile;
 		}
 
 		public void run() {
 			try {
 				cifsInteraction.copyFileTo(settings.getString("remoteHostname",
 						getString(R.string.preferences_remote_hostname)),
-						currentWorkingDirectory, filage,
-						getString(R.string.preferences_local_basedir), updateProgress);
+						currentWorkingDirectory, fileToCopy,
+						getString(R.string.preferences_local_basedir),
+						progressHandler);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				displayErrorMessage(e);
 			}
-		//	updateProgress.sendMessage(Message.obtain(updateProgress, 1, ""));
+		}
+	}
+
+	class CopyFolder implements Runnable {
+		private final String folderToCopy;
+
+		public CopyFolder(String inputFile) {
+			folderToCopy = inputFile;
+		}
+
+		public void run() {
+			try {
+				cifsInteraction.copyFolder(settings.getString("remoteHostname",
+						getString(R.string.preferences_remote_hostname)),
+						currentWorkingDirectory, folderToCopy,
+						getString(R.string.preferences_local_basedir),
+						progressHandler);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				displayErrorMessage(e);
+			}
 		}
 	}
 }
