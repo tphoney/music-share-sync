@@ -7,15 +7,20 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import jcifs.smb.SmbException;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,11 +33,13 @@ public class MusicScreenActivity extends ListActivity {
 	private CifsInteraction cifsInteraction;
 	private SharedPreferences settings;
 	private String currentWorkingDirectory;
+	private ProgressDialog pd;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		cifsInteraction = new CifsInteraction();
+		cifsInteraction.setHandler (updateProgress);
 		settings = getSharedPreferences(PREFS_NAME, 0);
 		currentWorkingDirectory = settings.getString("remoteBaseDirectory",
 				getString(R.string.preferences_remote_basedir));
@@ -119,16 +126,15 @@ public class MusicScreenActivity extends ListActivity {
 	}
 
 	protected void copyFile(final String fileToCopy) {
-
-		try {
-			cifsInteraction.copyFileTo(settings.getString("remoteHostname",
-					getString(R.string.preferences_remote_hostname)),
-					currentWorkingDirectory, fileToCopy,
-					getString(R.string.preferences_local_basedir));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			displayErrorMessage(e);
-		}
+		pd = new ProgressDialog(this);
+		pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		pd.setMessage("Searching Device");
+		pd.setIndeterminate(false);
+		pd.show();
+		Thread thread = new Thread(new LongTask(fileToCopy, true));
+		thread.start();
+		
+		
 		refreshMedia();
 	}
 
@@ -194,5 +200,72 @@ public class MusicScreenActivity extends ListActivity {
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
+	private Handler updateProgress = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case 0:
+				pd.dismiss();
+				break;
+			case 1:
+				pd.setProgress( Integer.parseInt(msg.obj.toString()));
+				break;
+			default:
+				pd.setProgress(0);
+				pd.setMessage((CharSequence) msg.obj);
+			}
+		}
+	};
+	
+	private class LongTask implements Runnable {
+		private final String fileage;
+		private final boolean isFile;
+		
+		public LongTask(String filebla, boolean isFilebla) {
+			fileage = filebla;
+			isFile = isFilebla;
+		}
+		
+		public void run() {
+			updateProgress.sendMessage(Message.obtain(updateProgress,
+					100, "copying file"));
+			
+			ExecutorService executor = Executors
+					.newFixedThreadPool(1);
+			
+				Runnable worker = new CopyFile(fileage);
+				executor.execute(worker);
+			
+			// This will make the executor accept no new threads
+			// and finish all existing threads in the queue
+			executor.shutdown();
+			// Wait until all threads are finish
+			while (!executor.isTerminated()) {
 
+			}
+			
+			updateProgress.sendMessage(Message.obtain(updateProgress, 0, ""));
+		}
+	}
+	
+	class CopyFile implements Runnable {
+		private final String filage;
+
+		public CopyFile(String inputNumber) {
+			filage = inputNumber;
+		}
+
+		public void run() {
+			try {
+				cifsInteraction.copyFileTo(settings.getString("remoteHostname",
+						getString(R.string.preferences_remote_hostname)),
+						currentWorkingDirectory, filage,
+						getString(R.string.preferences_local_basedir), updateProgress);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				displayErrorMessage(e);
+			}
+		//	updateProgress.sendMessage(Message.obtain(updateProgress, 1, ""));
+		}
+	}
 }
