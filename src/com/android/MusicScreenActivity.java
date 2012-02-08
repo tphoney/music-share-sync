@@ -30,13 +30,13 @@ import android.widget.TextView;
 public class MusicScreenActivity extends ListActivity {
 
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
-	private CifsInteraction cifsInteraction;
-	private SharedPreferences settings;
-	private String currentWorkingDirectory;
-	private ProgressDialog progressDialog;
+	private transient CifsInteraction cifsInteraction;
+	private transient SharedPreferences settings;
+	private transient String currentWorkingDirectory;
+	private transient ProgressDialog progressDialog;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		cifsInteraction = new CifsInteraction();
 
@@ -53,19 +53,17 @@ public class MusicScreenActivity extends ListActivity {
 					settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)));
 		} catch (SmbException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayErrorMessage(e);
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			displayErrorMessage(e);
 		}
 
-		final ListView lv = getListView();
+		final ListView listView = getListView();
 		// Then you can create a listener like so:
-		lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> av, View v, int pos,
-					long id) {
-				onLongListItemClick(lv, v, pos, id);
+		listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			public boolean onItemLongClick(final AdapterView<?> adapterView,
+					final View view, final int pos, final long rowid) {
+				onLongListItemClick(listView, view, pos, rowid);
 				return false;
 			}
 		});
@@ -74,37 +72,26 @@ public class MusicScreenActivity extends ListActivity {
 
 	}
 
-	protected void onLongListItemClick(ListView l, View v, int position, long id) {
-		String itemClicked = (String) getListAdapter().getItem(position);
+	protected void onLongListItemClick(final ListView listView, final View view,
+			final int position, final long rowid) {
+		final String itemClicked = (String) getListAdapter().getItem(position);
 		if (!isClickedItemALeaf(itemClicked)) {
-			// sync entire dir
-			// try {
-			// cifsInteraction.copyFolder(settings.getString("remoteHostname",
-			// getString(R.string.preferences_remote_hostname)),
-			// currentWorkingDirectory, itemClicked,
-			// getString(R.string.preferences_local_basedir));
-			// } catch (IOException e) { // TODO Auto-generated catch block
-			// displayErrorMessage(e);
-			// }
 			progressDialog = new ProgressDialog(this);
 			progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 			progressDialog.setMessage("Syncing Folder");
 			progressDialog.setIndeterminate(false);
 			progressDialog.show();
-			Thread thread = new Thread(
-					new LongCopyOperation(itemClicked, false));
+			final Thread thread = new Thread(new LongCopyOperation(itemClicked,
+					false));
 			thread.start();
 		}
-		// Dialog dialog = new Dialog(MusicScreenActivity.this);
-		// dialog.setTitle("Syncing: " + itemClicked);
-		// dialog.setCancelable(true);
-		// dialog.show();
 		refreshMedia();
 	}
 
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-		String itemClicked = (String) getListAdapter().getItem(position);
-		if (itemClicked.equals("UP")) {
+	protected void onListItemClick(final ListView listview, final View view,
+			final int position, final long id) {
+		final String itemClicked = (String) getListAdapter().getItem(position);
+		if ("UP".equals(itemClicked)) {
 			// remove lastFolder
 			currentWorkingDirectory = getMuckyParent();
 			displayFolderContents();
@@ -118,7 +105,7 @@ public class MusicScreenActivity extends ListActivity {
 		}
 	}
 
-	protected boolean isClickedItemALeaf(String itemClicked) {
+	protected boolean isClickedItemALeaf(final String itemClicked) {
 		boolean returnVal = false;
 		try {
 			returnVal = cifsInteraction.isLeaf(settings.getString(
@@ -139,7 +126,7 @@ public class MusicScreenActivity extends ListActivity {
 		progressDialog.setMessage("Searching Device");
 		progressDialog.setIndeterminate(false);
 		progressDialog.show();
-		Thread thread = new Thread(new LongCopyOperation(fileToCopy, true));
+		final Thread thread = new Thread(new LongCopyOperation(fileToCopy, true));
 		thread.start();
 
 		refreshMedia();
@@ -147,7 +134,7 @@ public class MusicScreenActivity extends ListActivity {
 
 	protected void displayFolderContents() {
 		try {
-			List<String> directoryContents = cifsInteraction
+			final List<String> directoryContents = cifsInteraction
 					.getDirectoryContents(settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)),
 							currentWorkingDirectory);
@@ -157,14 +144,12 @@ public class MusicScreenActivity extends ListActivity {
 					getString(R.string.preferences_remote_basedir)))) {
 				directoryContents.add(0, "UP");
 			}
-			ArrayAdapter<String> directoryList = new ArrayAdapter<String>(this,
+			final ArrayAdapter<String> directoryList = new ArrayAdapter<String>(this,
 					android.R.layout.simple_list_item_1, directoryContents);
 			setListAdapter(directoryList);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
 			displayErrorMessage(e);
 		} catch (SmbException e) {
-			e.printStackTrace();
 			displayErrorMessage(e);
 		}
 		getListView().setFastScrollEnabled(true);
@@ -178,25 +163,23 @@ public class MusicScreenActivity extends ListActivity {
 					getString(R.string.preferences_remote_hostname)),
 					currentWorkingDirectory);
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
 			displayErrorMessage(e);
 		} catch (SmbException e) {
-			e.printStackTrace();
 			displayErrorMessage(e);
 		}
 		return returnVal;
 	}
 
-	protected void displayErrorMessage(Throwable e) {
+	protected void displayErrorMessage(final Throwable exception) {
 		final Writer result = new StringWriter();
 		final PrintWriter printWriter = new PrintWriter(result);
-		e.printStackTrace(printWriter);
-		String stacktrace = result.toString();
-		Dialog dialog = new Dialog(MusicScreenActivity.this);
+		exception.printStackTrace(printWriter);
+		final String stacktrace = result.toString();
+		final Dialog dialog = new Dialog(MusicScreenActivity.this);
 		dialog.setTitle("Something went wrong: ");
-		final TextView tx = new TextView(this);
-		tx.setText(stacktrace);
-		dialog.setContentView(tx);
+		final TextView textview = new TextView(this);
+		textview.setText(stacktrace);
+		dialog.setContentView(textview);
 		dialog.setCancelable(true);
 		dialog.show();
 	}
@@ -207,7 +190,7 @@ public class MusicScreenActivity extends ListActivity {
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
-	private Handler progressHandler = new Handler() {
+	private final Handler progressHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
 			switch (msg.what) {
@@ -231,10 +214,10 @@ public class MusicScreenActivity extends ListActivity {
 	};
 
 	private class LongCopyOperation implements Runnable {
-		private final String thingToCopy;
-		private final boolean isFile;
+		private final transient String thingToCopy;
+		private final transient boolean isFile;
 
-		public LongCopyOperation(String fileName, boolean isFile) {
+		public LongCopyOperation(final String fileName, final boolean isFile) {
 			thingToCopy = fileName;
 			this.isFile = isFile;
 		}
@@ -243,12 +226,12 @@ public class MusicScreenActivity extends ListActivity {
 			progressHandler.sendMessage(Message.obtain(progressHandler,
 					R.integer.progressDialogInit, "Copying: " + thingToCopy));
 
-			ExecutorService executor = Executors.newFixedThreadPool(1);
+			final ExecutorService executor = Executors.newFixedThreadPool(1);
 			if (isFile) {
-				Runnable worker = new CopyFile(thingToCopy);
+				final Runnable worker = new CopyFile(thingToCopy);
 				executor.execute(worker);
 			} else {
-				Runnable worker = new CopyFolder(thingToCopy);
+				final Runnable worker = new CopyFolder(thingToCopy);
 				executor.execute(worker);
 			}
 
@@ -257,7 +240,7 @@ public class MusicScreenActivity extends ListActivity {
 			executor.shutdown();
 			// Wait until all threads are finish
 			while (!executor.isTerminated()) {
-
+				// there is nothing to do
 			}
 
 			progressHandler.sendMessage(Message.obtain(progressHandler,
@@ -266,9 +249,9 @@ public class MusicScreenActivity extends ListActivity {
 	}
 
 	class CopyFile implements Runnable {
-		private final String fileToCopy;
+		private transient final String fileToCopy;
 
-		public CopyFile(String inputFile) {
+		public CopyFile(final String inputFile) {
 			fileToCopy = inputFile;
 		}
 
@@ -287,7 +270,7 @@ public class MusicScreenActivity extends ListActivity {
 	}
 
 	class CopyFolder implements Runnable {
-		private final String folderToCopy;
+		private transient final String folderToCopy;
 
 		public CopyFolder(String inputFile) {
 			folderToCopy = inputFile;
@@ -301,7 +284,6 @@ public class MusicScreenActivity extends ListActivity {
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				displayErrorMessage(e);
 			}
 		}

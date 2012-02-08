@@ -13,13 +13,13 @@ public class MusicShareSyncActivity extends Activity {
 	private static final int MUSIC_SCREEN = Menu.FIRST;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(final Bundle instanceState) {
+		super.onCreate(instanceState);
 		setContentView(R.layout.main);
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(final Menu menu) {
 		super.onCreateOptionsMenu(menu);
 
 		menu.add(0, MUSIC_SCREEN, 0, "Start to Sync");
@@ -28,19 +28,21 @@ public class MusicShareSyncActivity extends Activity {
 	}
 
 	@Override
-	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		Intent i;
+	public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
+		Intent intent;
 		switch (item.getItemId()) {
 		case MUSIC_SCREEN:
-			i = new Intent(MusicShareSyncActivity.this,
+			intent = new Intent(MusicShareSyncActivity.this,
 					MusicScreenActivity.class);
-			startActivity(i);
+			startActivity(intent);
 			return true;
 		case SETTINGS_SCREEN:
-			i = new Intent(MusicShareSyncActivity.this,
+			intent = new Intent(MusicShareSyncActivity.this,
 					SettingsScreenActivity.class);
-			startActivity(i);
+			startActivity(intent);
 			return true;
+		default:
+			break;
 		}
 		return super.onMenuItemSelected(featureId, item);
 	}
