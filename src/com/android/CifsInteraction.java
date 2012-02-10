@@ -22,11 +22,13 @@ import android.os.Message;
 
 class CifsInteraction {
 	private static final String SMB__FILE_PREFIX = "smb://";
+	private String host;
 	transient private NtlmPasswordAuthentication authentication;
 
 	public void createConnection(final String domain, final String username,
 			final String password, final String host) throws SmbException,
 			UnknownHostException {
+		this.host = host;
 		authentication = new NtlmPasswordAuthentication(domain, username,
 				password);
 
@@ -35,11 +37,11 @@ class CifsInteraction {
 
 	}
 
-	public List<String> getDirectoryContents(final String host, final String baseDir)
+	public List<String> getDirectoryContents(final String baseDir)
 			throws MalformedURLException, SmbException {
 		final List<String> returnVal = new ArrayList<String>();
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host + smbifyPath(baseDir),
-				authentication);
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+				+ smbifyPath(baseDir), authentication);
 		final SmbFile[] pathContents = path.listFiles();
 		for (SmbFile smbFile : pathContents) {
 			returnVal.add(smbFile.getName());
@@ -47,20 +49,20 @@ class CifsInteraction {
 		return returnVal;
 	}
 
-	public boolean isLeaf(final String host, final String baseDir, final String itemClicked)
+	public boolean isLeaf(final String baseDir, final String itemClicked)
 			throws MalformedURLException, SmbException {
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host + smbifyPath(baseDir) + "/"
-				+ itemClicked, authentication);
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+				+ smbifyPath(baseDir) + "/" + itemClicked, authentication);
 		return path.isFile();
 	}
 
-	public void copyFileTo(final String srcHost,final  String remoteFilePath,
-			final String remoteFileName, final String localDir, final Handler progressHandler)
-			throws IOException {
+	public void copyFileTo(final String remoteFilePath,
+			final String remoteFileName, final String localDir,
+			final Handler progressHandler) throws IOException {
 
 		final File root = Environment.getExternalStorageDirectory();
-		final File localFilePath = new File(root.getPath() + "/" + localDir + "/"
-				+ remoteFilePath);
+		final File localFilePath = new File(root.getPath() + "/" + localDir
+				+ "/" + remoteFilePath);
 		if (!localFilePath.exists()) {
 			// create folder structure if necessary
 			localFilePath.mkdirs();
@@ -73,7 +75,7 @@ class CifsInteraction {
 			final BufferedOutputStream bos = new BufferedOutputStream(fos);
 
 			// set up where we read from
-			final SmbFile smbFile = new SmbFile(SMB__FILE_PREFIX + srcHost
+			final SmbFile smbFile = new SmbFile(SMB__FILE_PREFIX + host
 					+ smbifyPath(remoteFilePath) + "/"
 					+ smbifyPath(remoteFileName), authentication);
 			final double fileSize = (double) smbFile.length();
@@ -101,27 +103,27 @@ class CifsInteraction {
 		}
 	}
 
-	public void copyFolder(final String srcHost, final String remoteFilePath,
-			final String remoteFolderName, final String localDir, final Handler progressHandler)
-			throws IOException {
+	public void copyFolder(final String remoteFilePath,
+			final String remoteFolderName, final String localDir,
+			final Handler progressHandler) throws IOException {
 
 		final String fullRemotePath = smbifyPath(remoteFilePath) + "/"
 				+ remoteFolderName;
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + srcHost + fullRemotePath,
-				authentication);
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+				+ fullRemotePath, authentication);
 		final SmbFile[] pathContents = path.listFiles();
 		// progressHandler.sendMessage(Message.obtain(progressHandler, 2,
 		// ""+pathContents.length));
 		float filesCopied = 1;
 		for (SmbFile smbFile : pathContents) {
 			progressHandler.sendMessage(Message.obtain(progressHandler,
-					R.integer.progressDialogSetTitle, "Copying: "
-							+ smbFile.getName()));
+					R.integer.progressDialogSetTitle,
+					"Copying: " + smbFile.getName()));
 			if (smbFile.isFile()) {
-				copyFileTo(srcHost, fullRemotePath, smbFile.getName(),
-						localDir, progressHandler);
+				copyFileTo(fullRemotePath, smbFile.getName(), localDir,
+						progressHandler);
 			}
-			final int secondaryProgress = (int) ((filesCopied / pathContents.length) *100);
+			final int secondaryProgress = (int) ((filesCopied / pathContents.length) * 100);
 			progressHandler.sendMessage(Message.obtain(progressHandler,
 					R.integer.progressDialogSetSecondaryProgress, ""
 							+ secondaryProgress));
@@ -151,11 +153,11 @@ class CifsInteraction {
 		return returnVal;
 	}
 
-	public String getParent(final String host, final String baseDir)
-			throws MalformedURLException, SmbException {
+	public String getParent(final String baseDir) throws MalformedURLException,
+			SmbException {
 		String returnVal = baseDir;
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host + smbifyPath(baseDir),
-				authentication);
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+				+ smbifyPath(baseDir), authentication);
 		returnVal = path.getParent();
 		returnVal = returnVal.substring(returnVal.lastIndexOf(host),
 				returnVal.length() - 1);
