@@ -33,7 +33,7 @@ public class MusicShareSyncActivity extends Activity {
 		switch (item.getItemId()) {
 		case MUSIC_SCREEN:
 			intent = new Intent(MusicShareSyncActivity.this,
-					MusicScreenActivity.class);
+					DisplayShareScreenActivity.class);
 			startActivity(intent);
 			return true;
 		case SETTINGS_SCREEN:
