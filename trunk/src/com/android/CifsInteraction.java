@@ -20,7 +20,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
-class CifsInteraction {
+class CifsInteraction implements RemoteFileCopyInterface{
 	private static final String SMB__FILE_PREFIX = "smb://";
 	private String host;
 	transient private NtlmPasswordAuthentication authentication;
@@ -112,8 +112,6 @@ class CifsInteraction {
 		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
 				+ fullRemotePath, authentication);
 		final SmbFile[] pathContents = path.listFiles();
-		// progressHandler.sendMessage(Message.obtain(progressHandler, 2,
-		// ""+pathContents.length));
 		float filesCopied = 1;
 		for (SmbFile smbFile : pathContents) {
 			progressHandler.sendMessage(Message.obtain(progressHandler,

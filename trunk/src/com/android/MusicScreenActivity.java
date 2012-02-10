@@ -30,7 +30,7 @@ import android.widget.TextView;
 public class MusicScreenActivity extends ListActivity {
 
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
-	private transient CifsInteraction cifsInteraction;
+	private transient RemoteFileCopyInterface cifsInteraction;
 	private transient SharedPreferences settings;
 	private transient String currentWorkingDirectory;
 	private transient ProgressDialog progressDialog;
@@ -52,9 +52,7 @@ public class MusicScreenActivity extends ListActivity {
 							getString(R.string.preferences_remote_password)),
 					settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)));
-		} catch (SmbException e) {
-			displayErrorMessage(e);
-		} catch (UnknownHostException e) {
+		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
 
@@ -110,9 +108,7 @@ public class MusicScreenActivity extends ListActivity {
 		try {
 			returnVal = cifsInteraction.isLeaf(currentWorkingDirectory,
 					itemClicked);
-		} catch (MalformedURLException e) {
-			displayErrorMessage(e);
-		} catch (SmbException e) {
+		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
 		return returnVal;
@@ -145,9 +141,7 @@ public class MusicScreenActivity extends ListActivity {
 					this, android.R.layout.simple_list_item_1,
 					directoryContents);
 			setListAdapter(directoryList);
-		} catch (MalformedURLException e) {
-			displayErrorMessage(e);
-		} catch (SmbException e) {
+		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
 		getListView().setFastScrollEnabled(true);
@@ -157,9 +151,7 @@ public class MusicScreenActivity extends ListActivity {
 		String returnVal = currentWorkingDirectory;
 		try {
 			returnVal = cifsInteraction.getParent(currentWorkingDirectory);
-		} catch (MalformedURLException e) {
-			displayErrorMessage(e);
-		} catch (SmbException e) {
+		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
 		return returnVal;
@@ -255,8 +247,7 @@ public class MusicScreenActivity extends ListActivity {
 				cifsInteraction.copyFileTo(currentWorkingDirectory, fileToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
+			} catch (Exception e) {
 				displayErrorMessage(e);
 			}
 		}
@@ -275,7 +266,7 @@ public class MusicScreenActivity extends ListActivity {
 						folderToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
-			} catch (IOException e) {
+			} catch (Exception e) {
 				displayErrorMessage(e);
 			}
 		}
