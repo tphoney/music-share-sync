@@ -72,8 +72,8 @@ public class MusicScreenActivity extends ListActivity {
 
 	}
 
-	protected void onLongListItemClick(final ListView listView, final View view,
-			final int position, final long rowid) {
+	protected void onLongListItemClick(final ListView listView,
+			final View view, final int position, final long rowid) {
 		final String itemClicked = (String) getListAdapter().getItem(position);
 		if (!isClickedItemALeaf(itemClicked)) {
 			progressDialog = new ProgressDialog(this);
@@ -91,7 +91,7 @@ public class MusicScreenActivity extends ListActivity {
 	protected void onListItemClick(final ListView listview, final View view,
 			final int position, final long id) {
 		final String itemClicked = (String) getListAdapter().getItem(position);
-		if ("UP".equals(itemClicked)) {
+		if ("..".equals(itemClicked)) {
 			// remove lastFolder
 			currentWorkingDirectory = getMuckyParent();
 			displayFolderContents();
@@ -108,10 +108,8 @@ public class MusicScreenActivity extends ListActivity {
 	protected boolean isClickedItemALeaf(final String itemClicked) {
 		boolean returnVal = false;
 		try {
-			returnVal = cifsInteraction.isLeaf(settings.getString(
-					"remoteHostname",
-					getString(R.string.preferences_remote_hostname)),
-					currentWorkingDirectory, itemClicked);
+			returnVal = cifsInteraction.isLeaf(currentWorkingDirectory,
+					itemClicked);
 		} catch (MalformedURLException e) {
 			displayErrorMessage(e);
 		} catch (SmbException e) {
@@ -126,7 +124,8 @@ public class MusicScreenActivity extends ListActivity {
 		progressDialog.setMessage("Searching Device");
 		progressDialog.setIndeterminate(false);
 		progressDialog.show();
-		final Thread thread = new Thread(new LongCopyOperation(fileToCopy, true));
+		final Thread thread = new Thread(
+				new LongCopyOperation(fileToCopy, true));
 		thread.start();
 
 		refreshMedia();
@@ -135,17 +134,16 @@ public class MusicScreenActivity extends ListActivity {
 	protected void displayFolderContents() {
 		try {
 			final List<String> directoryContents = cifsInteraction
-					.getDirectoryContents(settings.getString("remoteHostname",
-							getString(R.string.preferences_remote_hostname)),
-							currentWorkingDirectory);
+					.getDirectoryContents(currentWorkingDirectory);
 
 			if (!currentWorkingDirectory.equals(settings.getString(
 					"remoteBaseDirectory",
 					getString(R.string.preferences_remote_basedir)))) {
-				directoryContents.add(0, "UP");
+				directoryContents.add(0, "..");
 			}
-			final ArrayAdapter<String> directoryList = new ArrayAdapter<String>(this,
-					android.R.layout.simple_list_item_1, directoryContents);
+			final ArrayAdapter<String> directoryList = new ArrayAdapter<String>(
+					this, android.R.layout.simple_list_item_1,
+					directoryContents);
 			setListAdapter(directoryList);
 		} catch (MalformedURLException e) {
 			displayErrorMessage(e);
@@ -158,10 +156,7 @@ public class MusicScreenActivity extends ListActivity {
 	protected String getMuckyParent() {
 		String returnVal = currentWorkingDirectory;
 		try {
-			returnVal = cifsInteraction.getParent(settings.getString(
-					"remoteHostname",
-					getString(R.string.preferences_remote_hostname)),
-					currentWorkingDirectory);
+			returnVal = cifsInteraction.getParent(currentWorkingDirectory);
 		} catch (MalformedURLException e) {
 			displayErrorMessage(e);
 		} catch (SmbException e) {
@@ -257,9 +252,7 @@ public class MusicScreenActivity extends ListActivity {
 
 		public void run() {
 			try {
-				cifsInteraction.copyFileTo(settings.getString("remoteHostname",
-						getString(R.string.preferences_remote_hostname)),
-						currentWorkingDirectory, fileToCopy,
+				cifsInteraction.copyFileTo(currentWorkingDirectory, fileToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
 			} catch (IOException e) {
@@ -278,9 +271,8 @@ public class MusicScreenActivity extends ListActivity {
 
 		public void run() {
 			try {
-				cifsInteraction.copyFolder(settings.getString("remoteHostname",
-						getString(R.string.preferences_remote_hostname)),
-						currentWorkingDirectory, folderToCopy,
+				cifsInteraction.copyFolder(currentWorkingDirectory,
+						folderToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
 			} catch (IOException e) {
