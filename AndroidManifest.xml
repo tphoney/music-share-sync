@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name="SettingsScreenActivity"></activity>
-        <activity android:name="MusicScreenActivity" android:configChanges="keyboardHidden|orientation"></activity>
+        <activity android:name="DisplayShareScreenActivity" android:configChanges="keyboardHidden|orientation"></activity>
 
     </application>
 </manifest>
