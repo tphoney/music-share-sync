@@ -138,7 +138,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 				directoryContents.add(0, "..");
 			}
 			final ArrayAdapter<String> directoryList = new ArrayAdapter<String>(
-					this, android.R.layout.simple_list_item_1,
+					this, R.layout.row, R.id.rowTitle,
 					directoryContents);
 			setListAdapter(directoryList);
 		} catch (Exception e) {
