@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.zook.ui.activities.R;
 import com.zook.services.CifsRemoteFileCopyInterface;
 import com.zook.services.RemoteFileCopyInterface;
 
@@ -70,7 +69,7 @@ public class SettingsScreenActivity extends Activity {
 				editor.putString("remotePassword", etPassword.getText()
 						.toString());
 				// hold your horses
-				RemoteFileCopyInterface bla = new CifsRemoteFileCopyInterface();
+				final RemoteFileCopyInterface bla = new CifsRemoteFileCopyInterface();
 				boolean canConnect = true;
 				String stackTrace = "WRONG";
 				try {
@@ -79,7 +78,6 @@ public class SettingsScreenActivity extends Activity {
 									.getText().toString(), etHostname.getText()
 									.toString());
 				} catch (Exception e) {
-					e.printStackTrace();
 					canConnect = false;
 					final Writer result = new StringWriter();
 					final PrintWriter printWriter = new PrintWriter(result);
