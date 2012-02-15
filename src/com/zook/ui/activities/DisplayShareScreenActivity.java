@@ -135,14 +135,17 @@ public class DisplayShareScreenActivity extends ListActivity {
 		try {
 			final List<String> directoryContents = cifsInteraction
 					.getDirectoryContents(currentWorkingDirectory);
-
+			final List<Boolean> directoryContentsSyncStatus = cifsInteraction
+					.getDirectoryContentsSyncStatus(currentWorkingDirectory, getString(R.string.preferences_local_basedir));
+			
 			if (!currentWorkingDirectory.equals(settings.getString(
 					"remoteBaseDirectory",
 					getString(R.string.preferences_remote_basedir)))) {
 				directoryContents.add(0, "..");
+				directoryContentsSyncStatus.add (0, false);
 			}
 			setListAdapter(new MyCustomAdapter(this, R.layout.row,
-					directoryContents));
+					directoryContents, directoryContentsSyncStatus));
 		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
@@ -277,10 +280,13 @@ public class DisplayShareScreenActivity extends ListActivity {
 	public class MyCustomAdapter extends ArrayAdapter<String> {
 
 		List<String> currentWorkingDirectoryContents;
+		List<Boolean> currentWorkingDirectoryContentsSync;
 
-		public MyCustomAdapter(Context context, int textViewResourceId, List<String> objects) {
-			super(context, textViewResourceId, objects);
-			currentWorkingDirectoryContents = objects;
+		public MyCustomAdapter(Context context, int textViewResourceId,
+				List<String> contents, List<Boolean> statuses) {
+			super(context, textViewResourceId, contents);
+			currentWorkingDirectoryContents = contents;
+			currentWorkingDirectoryContentsSync = statuses;
 		}
 
 		@Override
@@ -292,10 +298,14 @@ public class DisplayShareScreenActivity extends ListActivity {
 			label.setText(currentWorkingDirectoryContents.get(position));
 			ImageView icon = (ImageView) row.findViewById(R.id.icon);
 
-			if (currentWorkingDirectoryContents.get(position).equals("..")) {
-				icon.setImageResource(R.drawable.icon);
+			if (!currentWorkingDirectoryContents.get(position).equals("..")) {
+				if (currentWorkingDirectoryContentsSync.get(position)) {
+					icon.setImageResource(R.drawable.icon);
+				} else {
+					icon.setImageResource(R.drawable.icongray);
+				}
 			} else {
-				icon.setImageResource(R.drawable.icongray);
+				icon = null;
 			}
 
 			return row;
