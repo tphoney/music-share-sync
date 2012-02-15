@@ -14,7 +14,6 @@ import com.zook.services.RemoteFileCopyInterface;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -22,12 +21,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -88,6 +83,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 			thread.start();
 		}
 		refreshMedia();
+		displayFolderContents();
 	}
 
 	protected void onListItemClick(final ListView listview, final View view,
@@ -95,7 +91,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 		final String itemClicked = (String) getListAdapter().getItem(position);
 		if ("..".equals(itemClicked)) {
 			// remove lastFolder
-			currentWorkingDirectory = getMuckyParent();
+			currentWorkingDirectory = getcurrentWorkingDirectoryParent();
 			displayFolderContents();
 		} else {
 			if (isClickedItemALeaf(itemClicked)) {
@@ -128,6 +124,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 				new LongCopyOperation(fileToCopy, true));
 		thread.start();
 
+		displayFolderContents();
 		refreshMedia();
 	}
 
@@ -144,7 +141,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 				directoryContents.add(0, "..");
 				directoryContentsSyncStatus.add (0, false);
 			}
-			setListAdapter(new MyCustomAdapter(this, R.layout.row,
+			setListAdapter(new MyCustomAdapter(this, this, R.layout.row,
 					directoryContents, directoryContentsSyncStatus));
 		} catch (Exception e) {
 			displayErrorMessage(e);
@@ -152,7 +149,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 		getListView().setFastScrollEnabled(true);
 	}
 
-	protected String getMuckyParent() {
+	protected String getcurrentWorkingDirectoryParent() {
 		String returnVal = currentWorkingDirectory;
 		try {
 			returnVal = cifsInteraction.getParent(currentWorkingDirectory);
@@ -274,41 +271,6 @@ public class DisplayShareScreenActivity extends ListActivity {
 			} catch (Exception e) {
 				displayErrorMessage(e);
 			}
-		}
-	}
-
-	public class MyCustomAdapter extends ArrayAdapter<String> {
-
-		List<String> currentWorkingDirectoryContents;
-		List<Boolean> currentWorkingDirectoryContentsSync;
-
-		public MyCustomAdapter(Context context, int textViewResourceId,
-				List<String> contents, List<Boolean> statuses) {
-			super(context, textViewResourceId, contents);
-			currentWorkingDirectoryContents = contents;
-			currentWorkingDirectoryContentsSync = statuses;
-		}
-
-		@Override
-		public View getView(int position, View convertView, ViewGroup parent) {
-			// return super.getView(position, convertView, parent);
-			LayoutInflater inflater = getLayoutInflater();
-			View row = inflater.inflate(R.layout.row, parent, false);
-			TextView label = (TextView) row.findViewById(R.id.rowTitle);
-			label.setText(currentWorkingDirectoryContents.get(position));
-			ImageView icon = (ImageView) row.findViewById(R.id.icon);
-
-			if (!currentWorkingDirectoryContents.get(position).equals("..")) {
-				if (currentWorkingDirectoryContentsSync.get(position)) {
-					icon.setImageResource(R.drawable.icon);
-				} else {
-					icon.setImageResource(R.drawable.icongray);
-				}
-			} else {
-				icon = null;
-			}
-
-			return row;
 		}
 	}
 
