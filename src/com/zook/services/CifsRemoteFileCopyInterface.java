@@ -65,8 +65,9 @@ public class CifsRemoteFileCopyInterface implements RemoteFileCopyInterface {
 		// local stuff
 		final File root = Environment.getExternalStorageDirectory();
 		final String localFilePath = root.getPath() + "/" + localDir;
+		File localFile;
 		for (SmbFile smbFile : pathContents) {
-			File localFile = new File(localFilePath + "/"
+			localFile = new File(localFilePath + "/"
 					+ smbFile.getPath().replaceAll(template, ""));
 			if (localFile.exists()) {
 				returnVal.add(true);
