@@ -14,6 +14,7 @@ import com.zook.services.RemoteFileCopyInterface;
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -21,9 +22,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -137,10 +141,8 @@ public class DisplayShareScreenActivity extends ListActivity {
 					getString(R.string.preferences_remote_basedir)))) {
 				directoryContents.add(0, "..");
 			}
-			final ArrayAdapter<String> directoryList = new ArrayAdapter<String>(
-					this, R.layout.row, R.id.rowTitle,
-					directoryContents);
-			setListAdapter(directoryList);
+			setListAdapter(new MyCustomAdapter(this, R.layout.row,
+					directoryContents));
 		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
@@ -271,4 +273,33 @@ public class DisplayShareScreenActivity extends ListActivity {
 			}
 		}
 	}
+
+	public class MyCustomAdapter extends ArrayAdapter<String> {
+
+		List<String> currentWorkingDirectoryContents;
+
+		public MyCustomAdapter(Context context, int textViewResourceId, List<String> objects) {
+			super(context, textViewResourceId, objects);
+			currentWorkingDirectoryContents = objects;
+		}
+
+		@Override
+		public View getView(int position, View convertView, ViewGroup parent) {
+			// return super.getView(position, convertView, parent);
+			LayoutInflater inflater = getLayoutInflater();
+			View row = inflater.inflate(R.layout.row, parent, false);
+			TextView label = (TextView) row.findViewById(R.id.rowTitle);
+			label.setText(currentWorkingDirectoryContents.get(position));
+			ImageView icon = (ImageView) row.findViewById(R.id.icon);
+
+			if (currentWorkingDirectoryContents.get(position).equals("..")) {
+				icon.setImageResource(R.drawable.icon);
+			} else {
+				icon.setImageResource(R.drawable.icongray);
+			}
+
+			return row;
+		}
+	}
+
 }
