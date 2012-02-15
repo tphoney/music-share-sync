@@ -22,7 +22,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 
-public class CifsRemoteFileCopyInterface implements RemoteFileCopyInterface{
+public class CifsRemoteFileCopyInterface implements RemoteFileCopyInterface {
 	private static final String SMB__FILE_PREFIX = "smb://";
 	private String host;
 	transient private NtlmPasswordAuthentication authentication;
@@ -47,6 +47,32 @@ public class CifsRemoteFileCopyInterface implements RemoteFileCopyInterface{
 		final SmbFile[] pathContents = path.listFiles();
 		for (SmbFile smbFile : pathContents) {
 			returnVal.add(smbFile.getName());
+		}
+		return returnVal;
+	}
+
+	public List<Boolean> getDirectoryContentsSyncStatus(
+			final String remoteFilePath, final String localDir)
+			throws Exception {
+		final List<Boolean> returnVal = new ArrayList<Boolean>();
+
+		// remote stuff
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+				+ smbifyPath(remoteFilePath), authentication);
+		final SmbFile[] pathContents = path.listFiles();
+		final String template = SMB__FILE_PREFIX + host;
+
+		// local stuff
+		final File root = Environment.getExternalStorageDirectory();
+		final String localFilePath = root.getPath() + "/" + localDir;
+		for (SmbFile smbFile : pathContents) {
+			File localFile = new File(localFilePath + "/"
+					+ smbFile.getPath().replaceAll(template, ""));
+			if (localFile.exists()) {
+				returnVal.add(true);
+			} else {
+				returnVal.add(false);
+			}
 		}
 		return returnVal;
 	}

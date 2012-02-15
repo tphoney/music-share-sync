@@ -10,6 +10,9 @@ public interface RemoteFileCopyInterface {
 
 	List<String> getDirectoryContents(final String remoteFilePath)
 			throws Exception;
+	
+	List<Boolean> getDirectoryContentsSyncStatus(final String remoteFilePath, final String destinationFolder)
+			throws Exception;
 
 	boolean isLeaf(final String remoteFilePath, final String itemClicked)
 			throws Exception;
