@@ -24,7 +24,7 @@ import android.os.Message;
 
 public class CifsRemoteFileCopyInterface implements RemoteFileCopyInterface {
 	private static final String SMB__FILE_PREFIX = "smb://";
-	private String host;
+	private transient String host;
 	transient private NtlmPasswordAuthentication authentication;
 
 	public void createConnection(final String domain, final String username,
