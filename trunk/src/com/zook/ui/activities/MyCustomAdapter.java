@@ -33,12 +33,12 @@ public class MyCustomAdapter extends ArrayAdapter<String> {
 		final ImageView icon = (ImageView) row.findViewById(R.id.icon);
 
 		if (directoryContents.get(position).equals("..")) {
-			icon.setImageResource(R.drawable.icon);
+			icon.setImageResource(R.drawable.up_folder);
 		} else {
 			if (directoryStatuses.get(position)) {
-				icon.setImageResource(R.drawable.icon);
+				icon.setImageResource(R.drawable.not_gray);
 			} else {
-				icon.setImageResource(R.drawable.icongray);
+				icon.setImageResource(R.drawable.gray);
 			}
 		}
 
