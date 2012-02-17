@@ -8,7 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.zook.ui.activities.R;
-import com.zook.services.CifsRemoteFileCopyInterface;
+import com.zook.services.CifsRemoteFileCopy;
 import com.zook.services.RemoteFileCopyInterface;
 
 import android.app.Dialog;
@@ -37,7 +37,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 	@Override
 	public void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		cifsInteraction = new CifsRemoteFileCopyInterface();
+		cifsInteraction = new CifsRemoteFileCopy();
 
 		settings = getSharedPreferences(PREFS_NAME, 0);
 		currentWorkingDirectory = settings.getString("remoteBaseDirectory",
