@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 
-import com.zook.services.CifsRemoteFileCopyInterface;
+import com.zook.services.CifsRemoteFileCopy;
 import com.zook.services.RemoteFileCopyInterface;
 
 import android.app.Activity;
@@ -69,7 +69,7 @@ public class SettingsScreenActivity extends Activity {
 				editor.putString("remotePassword", etPassword.getText()
 						.toString());
 				// hold your horses
-				final RemoteFileCopyInterface bla = new CifsRemoteFileCopyInterface();
+				final RemoteFileCopyInterface bla = new CifsRemoteFileCopy();
 				boolean canConnect = true;
 				String stackTrace = "WRONG";
 				try {
