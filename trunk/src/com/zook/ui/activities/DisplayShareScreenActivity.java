@@ -31,7 +31,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 	public static final String PREFS_NAME = "MusicShareSync.preferences";
 	private transient RemoteFileCopyInterface cifsInteraction;
 	private transient SharedPreferences settings;
-	private transient String currentWorkingDirectory;
+	private transient String currentDirectory;
 	private transient ProgressDialog progressDialog;
 
 	@Override
@@ -40,7 +40,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 		cifsInteraction = new CifsRemoteFileCopy();
 
 		settings = getSharedPreferences(PREFS_NAME, 0);
-		currentWorkingDirectory = settings.getString("remoteBaseDirectory",
+		currentDirectory = settings.getString("remoteBaseDirectory",
 				getString(R.string.preferences_remote_basedir));
 		try {
 			cifsInteraction.createConnection(settings.getString("targetDomain",
@@ -91,13 +91,13 @@ public class DisplayShareScreenActivity extends ListActivity {
 		final String itemClicked = (String) getListAdapter().getItem(position);
 		if ("..".equals(itemClicked)) {
 			// remove lastFolder
-			currentWorkingDirectory = getcurrentWorkingDirectoryParent();
+			currentDirectory = getcurrentWorkingDirectoryParent();
 			displayFolderContents();
 		} else {
 			if (isClickedItemALeaf(itemClicked)) {
 				copyFile(itemClicked);
 			} else {
-				currentWorkingDirectory = currentWorkingDirectory + itemClicked;
+				currentDirectory = currentDirectory + itemClicked;
 				displayFolderContents();
 			}
 		}
@@ -106,7 +106,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 	protected boolean isClickedItemALeaf(final String itemClicked) {
 		boolean returnVal = false;
 		try {
-			returnVal = cifsInteraction.isLeaf(currentWorkingDirectory,
+			returnVal = cifsInteraction.isLeaf(currentDirectory,
 					itemClicked);
 		} catch (Exception e) {
 			displayErrorMessage(e);
@@ -131,11 +131,11 @@ public class DisplayShareScreenActivity extends ListActivity {
 	protected void displayFolderContents() {
 		try {
 			final List<String> directoryContents = cifsInteraction
-					.getDirectoryContents(currentWorkingDirectory);
+					.getDirectoryContents(currentDirectory);
 			final List<Boolean> directoryContentsSyncStatus = cifsInteraction
-					.getDirectoryContentsSyncStatus(currentWorkingDirectory, getString(R.string.preferences_local_basedir));
+					.getDirectoryContentsSyncStatus(currentDirectory, getString(R.string.preferences_local_basedir));
 			
-			if (!currentWorkingDirectory.equals(settings.getString(
+			if (!currentDirectory.equals(settings.getString(
 					"remoteBaseDirectory",
 					getString(R.string.preferences_remote_basedir)))) {
 				directoryContents.add(0, "..");
@@ -150,9 +150,9 @@ public class DisplayShareScreenActivity extends ListActivity {
 	}
 
 	protected String getcurrentWorkingDirectoryParent() {
-		String returnVal = currentWorkingDirectory;
+		String returnVal = currentDirectory;
 		try {
-			returnVal = cifsInteraction.getParent(currentWorkingDirectory);
+			returnVal = cifsInteraction.getParent(currentDirectory);
 		} catch (Exception e) {
 			displayErrorMessage(e);
 		}
@@ -246,7 +246,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 
 		public void run() {
 			try {
-				cifsInteraction.copyFileTo(currentWorkingDirectory, fileToCopy,
+				cifsInteraction.copyFileTo(currentDirectory, fileToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
 			} catch (Exception e) {
@@ -264,7 +264,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 
 		public void run() {
 			try {
-				cifsInteraction.copyFolder(currentWorkingDirectory,
+				cifsInteraction.copyFolder(currentDirectory,
 						folderToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
