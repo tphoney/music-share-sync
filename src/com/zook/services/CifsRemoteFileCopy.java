@@ -24,13 +24,13 @@ import android.os.Message;
 
 public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 	private static final String SMB__FILE_PREFIX = "smb://";
-	private transient String host;
+	private transient String smbHost;
 	transient private NtlmPasswordAuthentication authentication;
 
 	public void createConnection(final String domain, final String username,
 			final String password, final String host) throws SmbException,
 			UnknownHostException {
-		this.host = host;
+		this.smbHost = host;
 		authentication = new NtlmPasswordAuthentication(domain, username,
 				password);
 
@@ -42,7 +42,7 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 	public List<String> getDirectoryContents(final String baseDir)
 			throws MalformedURLException, SmbException {
 		final List<String> returnVal = new ArrayList<String>();
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + smbHost
 				+ smbifyPath(baseDir), authentication);
 		final SmbFile[] pathContents = path.listFiles();
 		for (SmbFile smbFile : pathContents) {
@@ -57,10 +57,10 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 		final List<Boolean> returnVal = new ArrayList<Boolean>();
 
 		// remote stuff
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + smbHost
 				+ smbifyPath(remoteFilePath), authentication);
 		final SmbFile[] pathContents = path.listFiles();
-		final String template = SMB__FILE_PREFIX + host;
+		final String template = SMB__FILE_PREFIX + smbHost;
 
 		// local stuff
 		final File root = Environment.getExternalStorageDirectory();
@@ -80,7 +80,7 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 
 	public boolean isLeaf(final String baseDir, final String itemClicked)
 			throws MalformedURLException, SmbException {
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + smbHost
 				+ smbifyPath(baseDir) + "/" + itemClicked, authentication);
 		return path.isFile();
 	}
@@ -96,23 +96,26 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 			// create folder structure if necessary
 			localFilePath.mkdirs();
 		}
-		final File outputFile = new File(localFilePath, remoteFileName);
-		if (outputFile.exists()) {
+		
+		//set up files remote and local
+		final File localFile = new File(localFilePath, remoteFileName);
+		final SmbFile remoteFile = new SmbFile(SMB__FILE_PREFIX + smbHost
+				+ smbifyPath(remoteFilePath) + "/"
+				+ smbifyPath(remoteFileName), authentication);
+		
+		if (localFile.exists() && localFile.length() == remoteFile.length()) {
 			progressHandler.sendMessage(Message.obtain(progressHandler,
 					R.integer.progressDialogSetProgress,
 					Integer.toString(100)));
 		} else {
 			if (localFilePath.canWrite()) {
 				// setup where we write too.
-				final FileOutputStream fos = new FileOutputStream(outputFile);
+				final FileOutputStream fos = new FileOutputStream(localFile);
 				final BufferedOutputStream bos = new BufferedOutputStream(fos);
 
-				// set up where we read from
-				final SmbFile smbFile = new SmbFile(SMB__FILE_PREFIX + host
-						+ smbifyPath(remoteFilePath) + "/"
-						+ smbifyPath(remoteFileName), authentication);
-				final double fileSize = (double) smbFile.length();
-				final SmbFileInputStream sfis = new SmbFileInputStream(smbFile);
+				// set up where we read from				
+				final double fileSize = (double) remoteFile.length();
+				final SmbFileInputStream sfis = new SmbFileInputStream(remoteFile);
 				final BufferedInputStream bis = new BufferedInputStream(sfis);
 
 				// the actual copy
@@ -143,7 +146,7 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 
 		final String fullRemotePath = smbifyPath(remoteFilePath) + "/"
 				+ remoteFolderName;
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + smbHost
 				+ fullRemotePath, authentication);
 		final SmbFile[] pathContents = path.listFiles();
 		float filesCopied = 1;
@@ -187,13 +190,13 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 
 	public String getParent(final String baseDir) throws MalformedURLException,
 			SmbException {
-		String returnVal = baseDir;
-		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + host
+		String returnVal;
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + smbHost
 				+ smbifyPath(baseDir), authentication);
 		returnVal = path.getParent();
-		returnVal = returnVal.substring(returnVal.lastIndexOf(host),
+		returnVal = returnVal.substring(returnVal.lastIndexOf(smbHost),
 				returnVal.length() - 1);
-		returnVal = returnVal.replaceAll(host, "");
+		returnVal = returnVal.replaceAll(smbHost, "");
 		returnVal += '/';
 		return returnVal;
 	}

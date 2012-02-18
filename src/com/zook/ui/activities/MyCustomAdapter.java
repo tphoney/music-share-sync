@@ -30,7 +30,7 @@ public class MyCustomAdapter extends ArrayAdapter<String> {
 		final View row = inflater.inflate(R.layout.row, parent, false);
 		final TextView label = (TextView) row.findViewById(R.id.rowTitle);
 		label.setText(directoryContents.get(position));
-		final ImageView icon = (ImageView) row.findViewById(R.id.icon);
+		final ImageView icon = (ImageView) row.findViewById(R.id.rowIcon);
 
 		if (directoryContents.get(position).equals("..")) {
 			icon.setImageResource(R.drawable.up_folder);

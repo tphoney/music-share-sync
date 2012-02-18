@@ -23,8 +23,8 @@ public class SettingsScreenActivity extends Activity {
 
 	/** Called when the activity is first created. */
 	@Override
-	public void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(final Bundle state) {
+		super.onCreate(state);
 		setContentView(R.layout.settingsscreen);
 
 		// Restore preferences
@@ -50,8 +50,8 @@ public class SettingsScreenActivity extends Activity {
 		etPassword.setText(settings.getString("remotePassword",
 				getString(R.string.preferences_remote_password)));
 
-		final Button buttonSaveSettings = (Button) findViewById(R.id.buttonSaveSettings);
-		buttonSaveSettings.setOnClickListener(new OnClickListener() {
+		final Button butttonSave = (Button) findViewById(R.id.buttonSaveSettings);
+		butttonSave.setOnClickListener(new OnClickListener() {
 			public void onClick(final View view) {
 				// We need an Editor object to make preference changes.
 				// All objects are from android.context.Context
