@@ -14,10 +14,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.zook.services.CifsRemoteFileCopy;
+import com.zook.services.CopyThread;
 import com.zook.services.RemoteFileCopyInterface;
 import com.zook.ui.ExceptionDialog;
 import com.zook.ui.MyCustomArrayAdapter;
@@ -33,6 +35,8 @@ public class DisplayShareScreenActivity extends ListActivity {
 	@Override
 	public void onCreate(final Bundle state) {
 		super.onCreate(state);
+		this.getWindow().addFlags(
+				WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		cifsInteraction = new CifsRemoteFileCopy();
 
 		settings = getSharedPreferences(PREFS_NAME, 0);
@@ -207,14 +211,16 @@ public class DisplayShareScreenActivity extends ListActivity {
 					R.integer.progressDialogInit, "Copying: " + thingToCopy));
 
 			final ExecutorService executor = Executors.newFixedThreadPool(1);
-			if (isFile) {
-				final Runnable worker = new CopyFile(thingToCopy);
-				executor.execute(worker);
-			} else {
-				final Runnable worker = new CopyFolder(thingToCopy);
-				executor.execute(worker);
-			}
-
+			// if (isFile) {
+			// final Runnable worker = new CopyFile(thingToCopy);
+			// executor.execute(worker);
+			// } else {
+			// final Runnable worker = new CopyFolder(thingToCopy);
+			// executor.execute(worker);
+			// }
+			final Runnable worker = new CopyThread(cifsInteraction,
+					progressHandler, currentDirectory, thingToCopy, isFile, getString(R.string.preferences_local_basedir));
+			executor.execute(worker);
 			// This will make the executor accept no new threads
 			// and finish all existing threads in the queue
 			executor.shutdown();
