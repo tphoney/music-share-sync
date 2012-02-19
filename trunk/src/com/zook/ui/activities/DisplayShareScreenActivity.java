@@ -1,17 +1,9 @@
 package com.zook.ui.activities;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.zook.ui.activities.R;
-import com.zook.services.CifsRemoteFileCopy;
-import com.zook.services.RemoteFileCopyInterface;
-
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -24,7 +16,11 @@ import android.os.Message;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
+
+import com.zook.services.CifsRemoteFileCopy;
+import com.zook.services.RemoteFileCopyInterface;
+import com.zook.ui.ExceptionDialog;
+import com.zook.ui.MyCustomArrayAdapter;
 
 public class DisplayShareScreenActivity extends ListActivity {
 
@@ -35,8 +31,8 @@ public class DisplayShareScreenActivity extends ListActivity {
 	private transient ProgressDialog progressDialog;
 
 	@Override
-	public void onCreate(final Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public void onCreate(final Bundle state) {
+		super.onCreate(state);
 		cifsInteraction = new CifsRemoteFileCopy();
 
 		settings = getSharedPreferences(PREFS_NAME, 0);
@@ -52,7 +48,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 					settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)));
 		} catch (Exception e) {
-			displayErrorMessage(e);
+			new ExceptionDialog(e, this);
 		}
 
 		final ListView listView = getListView();
@@ -78,8 +74,8 @@ public class DisplayShareScreenActivity extends ListActivity {
 			progressDialog.setMessage("Syncing Folder");
 			progressDialog.setIndeterminate(false);
 			progressDialog.show();
-			final Thread thread = new Thread(new LongCopyOperation(itemClicked,
-					false));
+			final Thread thread = new Thread(new LongCopyOperationManager(
+					itemClicked, false));
 			thread.start();
 		}
 		refreshMedia();
@@ -87,7 +83,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 	}
 
 	protected void onListItemClick(final ListView listview, final View view,
-			final int position, final long id) {
+			final int position, final long rowId) {
 		final String itemClicked = (String) getListAdapter().getItem(position);
 		if ("..".equals(itemClicked)) {
 			// remove lastFolder
@@ -106,10 +102,9 @@ public class DisplayShareScreenActivity extends ListActivity {
 	protected boolean isClickedItemALeaf(final String itemClicked) {
 		boolean returnVal = false;
 		try {
-			returnVal = cifsInteraction.isLeaf(currentDirectory,
-					itemClicked);
+			returnVal = cifsInteraction.isLeaf(currentDirectory, itemClicked);
 		} catch (Exception e) {
-			displayErrorMessage(e);
+			new ExceptionDialog(e, this);
 		}
 		return returnVal;
 	}
@@ -120,8 +115,8 @@ public class DisplayShareScreenActivity extends ListActivity {
 		progressDialog.setMessage("Searching Device");
 		progressDialog.setIndeterminate(false);
 		progressDialog.show();
-		final Thread thread = new Thread(
-				new LongCopyOperation(fileToCopy, true));
+		final Thread thread = new Thread(new LongCopyOperationManager(
+				fileToCopy, true));
 		thread.start();
 
 		displayFolderContents();
@@ -130,21 +125,22 @@ public class DisplayShareScreenActivity extends ListActivity {
 
 	protected void displayFolderContents() {
 		try {
-			final List<String> directoryContents = cifsInteraction
+			final List<String> dirContents = cifsInteraction
 					.getDirectoryContents(currentDirectory);
-			final List<Boolean> directoryContentsSyncStatus = cifsInteraction
-					.getDirectoryContentsSyncStatus(currentDirectory, getString(R.string.preferences_local_basedir));
-			
+			final List<Boolean> dirContentsStatus = cifsInteraction
+					.getDirectoryContentsSyncStatus(currentDirectory,
+							getString(R.string.preferences_local_basedir));
+
 			if (!currentDirectory.equals(settings.getString(
 					"remoteBaseDirectory",
 					getString(R.string.preferences_remote_basedir)))) {
-				directoryContents.add(0, "..");
-				directoryContentsSyncStatus.add (0, false);
+				dirContents.add(0, "..");
+				dirContentsStatus.add(0, false);
 			}
-			setListAdapter(new MyCustomAdapter(this, this, R.layout.row,
-					directoryContents, directoryContentsSyncStatus));
+			setListAdapter(new MyCustomArrayAdapter(this, this, R.layout.row,
+					dirContents, dirContentsStatus));
 		} catch (Exception e) {
-			displayErrorMessage(e);
+			new ExceptionDialog(e, this);
 		}
 		getListView().setFastScrollEnabled(true);
 	}
@@ -154,23 +150,9 @@ public class DisplayShareScreenActivity extends ListActivity {
 		try {
 			returnVal = cifsInteraction.getParent(currentDirectory);
 		} catch (Exception e) {
-			displayErrorMessage(e);
+			new ExceptionDialog(e, this);
 		}
 		return returnVal;
-	}
-
-	protected void displayErrorMessage(final Throwable exception) {
-		final Writer result = new StringWriter();
-		final PrintWriter printWriter = new PrintWriter(result);
-		exception.printStackTrace(printWriter);
-		final String stacktrace = result.toString();
-		final Dialog dialog = new Dialog(DisplayShareScreenActivity.this);
-		dialog.setTitle("Something went wrong: ");
-		final TextView textview = new TextView(this);
-		textview.setText(stacktrace);
-		dialog.setContentView(textview);
-		dialog.setCancelable(true);
-		dialog.show();
 	}
 
 	private void refreshMedia() {
@@ -179,9 +161,9 @@ public class DisplayShareScreenActivity extends ListActivity {
 				Uri.parse("file://" + Environment.getExternalStorageDirectory())));
 	}
 
-	private final Handler progressHandler = new Handler() {
+	private final transient Handler progressHandler = new Handler() {
 		@Override
-		public void handleMessage(Message msg) {
+		public void handleMessage(final Message msg) {
 			switch (msg.what) {
 			case R.integer.progressDialogDismiss:
 				progressDialog.dismiss();
@@ -193,20 +175,29 @@ public class DisplayShareScreenActivity extends ListActivity {
 			case R.integer.progressDialogSetSecondaryProgress:
 				progressDialog.setSecondaryProgress(Integer.parseInt(msg.obj
 						.toString()));
+				break;
 			case R.integer.progressDialogSetTitle:
 				progressDialog.setMessage((CharSequence) msg.obj);
+				break;
+			case R.integer.progressSomethingWentWrong:
+				progressDialog.dismiss();
+				new ExceptionDialog((Exception) msg.obj,
+						DisplayShareScreenActivity.this);
+				break;
 			default:
 				progressDialog.setProgress(0);
 				progressDialog.setMessage((CharSequence) msg.obj);
+				break;
 			}
 		}
 	};
 
-	private class LongCopyOperation implements Runnable {
+	private class LongCopyOperationManager implements Runnable {
 		private final transient String thingToCopy;
 		private final transient boolean isFile;
 
-		public LongCopyOperation(final String fileName, final boolean isFile) {
+		public LongCopyOperationManager(final String fileName,
+				final boolean isFile) {
 			thingToCopy = fileName;
 			this.isFile = isFile;
 		}
@@ -250,7 +241,8 @@ public class DisplayShareScreenActivity extends ListActivity {
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
 			} catch (Exception e) {
-				displayErrorMessage(e);
+				progressHandler.sendMessage(Message.obtain(progressHandler,
+						R.integer.progressSomethingWentWrong, e));
 			}
 		}
 	}
@@ -258,18 +250,18 @@ public class DisplayShareScreenActivity extends ListActivity {
 	class CopyFolder implements Runnable {
 		private transient final String folderToCopy;
 
-		public CopyFolder(String inputFile) {
+		public CopyFolder(final String inputFile) {
 			folderToCopy = inputFile;
 		}
 
 		public void run() {
 			try {
-				cifsInteraction.copyFolder(currentDirectory,
-						folderToCopy,
+				cifsInteraction.copyFolder(currentDirectory, folderToCopy,
 						getString(R.string.preferences_local_basedir),
 						progressHandler);
 			} catch (Exception e) {
-				displayErrorMessage(e);
+				progressHandler.sendMessage(Message.obtain(progressHandler,
+						R.integer.progressSomethingWentWrong, e));
 			}
 		}
 	}

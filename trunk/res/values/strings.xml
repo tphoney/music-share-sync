@@ -27,5 +27,6 @@
     <integer name="progressDialogSetProgress">2</integer>
     <integer name="progressDialogSetSecondaryProgress">3</integer>
     <integer name="progressDialogSetTitle">4</integer>
+    <integer name="progressSomethingWentWrong">5</integer>
 
 </resources>
