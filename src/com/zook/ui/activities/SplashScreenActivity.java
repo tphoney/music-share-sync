@@ -40,6 +40,7 @@ public class SplashScreenActivity extends Activity {
 	 */
 	@Override
 	public boolean onMenuItemSelected(final int featureId, final MenuItem item) {
+		boolean returnVal;
 		Intent intent;
 		switch (item.getItemId()) {
 		// case MUSIC_SCREEN:
@@ -47,23 +48,19 @@ public class SplashScreenActivity extends Activity {
 			intent = new Intent(SplashScreenActivity.this,
 					DisplayShareScreenActivity.class);
 			startActivity(intent);
-			return true;
-			// case SETTINGS_SCREEN:
+			returnVal = true;
+			break;
 		case R.id.home_menu_settings:
 			intent = new Intent(SplashScreenActivity.this,
 					SettingsScreenActivity.class);
 			startActivity(intent);
-			return true;
-			// case SETTINGS_SCREEN:
-			// case R.id.home_menu_tree_tests:
-			// intent = new Intent(MusicShareSyncActivity.this,
-			// TreeTestScreenActivity.class);
-			// startActivity(intent);
-			// return true;
+			returnVal = true;
+			break;
 		default:
+			returnVal = super.onMenuItemSelected(featureId, item);
 			break;
 		}
-		return super.onMenuItemSelected(featureId, item);
+		return returnVal;
 	}
 
 }

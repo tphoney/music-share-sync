@@ -5,18 +5,18 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
     <TextView android:text="@string/HostnameLabel" android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:id="@+id/tvHostname"></TextView>
-    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etHostname">
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etHostname" android:hint="Hostname or IP">
         <requestFocus></requestFocus>
     </EditText>
     <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/WorkgroupLabel" android:id="@+id/tvWorkgroup"></TextView>
-    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etWorkgroup"></EditText>
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etWorkgroup" android:hint="Workgroup or Domain"></EditText>
     <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/UsernameLabel" android:id="@+id/tvUsername"></TextView>
-    <EditText android:layout_height="wrap_content" android:layout_width="228dp" android:id="@+id/etUsername">
+    <EditText android:layout_height="wrap_content" android:layout_width="228dp" android:id="@+id/etUsername" android:hint="guest">
     </EditText>
     <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:text="@string/PasswordLabel" android:id="@+id/tvPassword"></TextView>
-    <EditText android:id="@+id/etPassword" android:layout_width="match_parent" android:layout_height="wrap_content"></EditText>
+    <EditText android:id="@+id/etPassword" android:layout_width="match_parent" android:layout_height="wrap_content" android:hint="can be blank"></EditText>
     <TextView android:layout_width="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:layout_height="wrap_content" android:id="@+id/tvStartingPath" android:text="@string/StartingPathLabel"></TextView>
-    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etStartingPath"></EditText>
+    <EditText android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/etStartingPath" android:hint="Normally the root of your music folder"></EditText>
     <Button android:id="@+id/buttonSaveSettings" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/SaveSettingsLabel"></Button>
     
 </TableLayout>

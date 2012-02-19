@@ -1,4 +1,4 @@
-package com.zook.ui.activities;
+package com.zook.ui;
 
 import java.util.List;
 
@@ -10,13 +10,16 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MyCustomAdapter extends ArrayAdapter<String> {
+import com.zook.ui.activities.DisplayShareScreenActivity;
+import com.zook.ui.activities.R;
+
+public class MyCustomArrayAdapter extends ArrayAdapter<String> {
 
 	private transient final DisplayShareScreenActivity activity;
 	private transient final List<String> directoryContents;
 	private transient final List<Boolean> directoryStatuses;
 
-	public MyCustomAdapter(final DisplayShareScreenActivity activity, final Context context, final int resourceId,
+	public MyCustomArrayAdapter(final DisplayShareScreenActivity activity, final Context context, final int resourceId,
 			final List<String> contents, final List<Boolean> statuses) {
 		super(context, resourceId, contents);
 		this.activity = activity;
