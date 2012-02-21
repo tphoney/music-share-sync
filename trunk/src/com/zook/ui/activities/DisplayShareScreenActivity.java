@@ -81,6 +81,10 @@ public class DisplayShareScreenActivity extends ListActivity {
 			final Thread thread = new Thread(new LongCopyOperationManager(
 					itemClicked, false));
 			thread.start();
+		} else {
+//			if (fileExistsLocally(itemClicked)) {
+//				removeFile(itemClicked);
+//			}
 		}
 		refreshMedia();
 		displayFolderContents();
@@ -95,12 +99,36 @@ public class DisplayShareScreenActivity extends ListActivity {
 			displayFolderContents();
 		} else {
 			if (isClickedItemALeaf(itemClicked)) {
-				copyFile(itemClicked);
+				if (!fileExistsLocally(itemClicked)) {
+					copyFile(itemClicked);
+				}
 			} else {
 				currentDirectory = currentDirectory + itemClicked;
 				displayFolderContents();
 			}
 		}
+	}
+
+	protected boolean fileExistsLocally(final String itemClicked) {
+		boolean returnVal = false;
+		try {
+			returnVal = cifsInteraction.fileExistsLocally(currentDirectory,
+					itemClicked, getString(R.string.preferences_local_basedir));
+		} catch (Exception e) {
+			new ExceptionDialog(e, this);
+		}
+		return returnVal;
+	}
+
+	protected void removeFile(final String itemClicked) {
+		try {
+			cifsInteraction.removeFileLocally(currentDirectory, itemClicked,
+					getString(R.string.preferences_local_basedir));
+		} catch (Exception e) {
+			new ExceptionDialog(e, this);
+		}
+		refreshMedia();
+		displayFolderContents();
 	}
 
 	protected boolean isClickedItemALeaf(final String itemClicked) {
@@ -211,15 +239,9 @@ public class DisplayShareScreenActivity extends ListActivity {
 					R.integer.progressDialogInit, "Copying: " + thingToCopy));
 
 			final ExecutorService executor = Executors.newFixedThreadPool(1);
-			// if (isFile) {
-			// final Runnable worker = new CopyFile(thingToCopy);
-			// executor.execute(worker);
-			// } else {
-			// final Runnable worker = new CopyFolder(thingToCopy);
-			// executor.execute(worker);
-			// }
 			final Runnable worker = new CopyThread(cifsInteraction,
-					progressHandler, currentDirectory, thingToCopy, isFile, getString(R.string.preferences_local_basedir));
+					progressHandler, currentDirectory, thingToCopy, isFile,
+					getString(R.string.preferences_local_basedir));
 			executor.execute(worker);
 			// This will make the executor accept no new threads
 			// and finish all existing threads in the queue
@@ -233,43 +255,4 @@ public class DisplayShareScreenActivity extends ListActivity {
 					R.integer.progressDialogDismiss, ""));
 		}
 	}
-
-	class CopyFile implements Runnable {
-		private transient final String fileToCopy;
-
-		public CopyFile(final String inputFile) {
-			fileToCopy = inputFile;
-		}
-
-		public void run() {
-			try {
-				cifsInteraction.copyFileTo(currentDirectory, fileToCopy,
-						getString(R.string.preferences_local_basedir),
-						progressHandler);
-			} catch (Exception e) {
-				progressHandler.sendMessage(Message.obtain(progressHandler,
-						R.integer.progressSomethingWentWrong, e));
-			}
-		}
-	}
-
-	class CopyFolder implements Runnable {
-		private transient final String folderToCopy;
-
-		public CopyFolder(final String inputFile) {
-			folderToCopy = inputFile;
-		}
-
-		public void run() {
-			try {
-				cifsInteraction.copyFolder(currentDirectory, folderToCopy,
-						getString(R.string.preferences_local_basedir),
-						progressHandler);
-			} catch (Exception e) {
-				progressHandler.sendMessage(Message.obtain(progressHandler,
-						R.integer.progressSomethingWentWrong, e));
-			}
-		}
-	}
-
 }

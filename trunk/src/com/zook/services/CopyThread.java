@@ -6,8 +6,8 @@ import android.os.Message;
 import com.zook.ui.activities.R;
 
 public class CopyThread implements Runnable {
-	private RemoteFileCopyInterface fileCopyInterface;
-	private Handler handler;
+	private transient final RemoteFileCopyInterface fileCopyInterface;
+	private transient final  Handler handler;
 	private transient final String baseFolder;
 	private transient final String thingToCopy;
 	private transient final boolean isFile;
