@@ -16,11 +16,19 @@ public interface RemoteFileCopyInterface {
 
 	boolean isLeaf(final String remoteFilePath, final String itemClicked)
 			throws RemoteFileCopyException;
-
-	void copyFileTo(final String remoteFilePath, final String fileToCopy,
-			final String destinationFolder, final Handler progresHandler)
+	
+	boolean fileExistsLocally(final String remoteFilePath, final String fileToCopy,
+			final String destinationFolder)
 			throws RemoteFileCopyException;
 
+	void copyFileTo(final String remoteFilePath, final String fileToCopy,
+			final String destinationFolder, final Handler progressHandler)
+			throws RemoteFileCopyException;
+	
+	void removeFileLocally(final String remoteFilePath, final String fileToCopy,
+			final String destinationFolder)
+			throws RemoteFileCopyException;
+	
 	void copyFolder(final String remoteFilePath, final String folderToCopy,
 			final String destinationFolder, final Handler progressHandler)
 			throws RemoteFileCopyException;

@@ -40,7 +40,8 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 		} catch (SmbException e) {
 			throw new RemoteFileCopyException(e);
 		} catch (UnknownHostException e) {
-			throw new RemoteFileCopyException("Sorry, but we cannot reach: " + host);
+			throw new RemoteFileCopyException(e, "Sorry, but we cannot reach: "
+					+ host);
 		}
 	}
 
@@ -235,6 +236,33 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 		} catch (MalformedURLException e) {
 			throw new RemoteFileCopyException(e);
 		}
+	}
+
+	public void removeFileLocally(final String remoteFilePath,
+			final String fileToCopy, final String destinationFolder)
+			throws RemoteFileCopyException {
+		final File root = Environment.getExternalStorageDirectory();
+		final File localFilePath = new File(root.getPath() + "/"
+				+ destinationFolder + "/" + remoteFilePath);
+
+		// set up files remote and local
+		final File localFile = new File(localFilePath, fileToCopy);
+
+		if (localFile.exists()) {
+			localFile.delete();
+		}
+
+	}
+
+	public boolean fileExistsLocally(final String remoteFilePath,
+			final String fileToCopy, final String destinationFolder)
+			throws RemoteFileCopyException {
+		final File root = Environment.getExternalStorageDirectory();
+		final File localFilePath = new File(root.getPath() + "/"
+				+ destinationFolder + "/" + remoteFilePath);
+
+		final File localFile = new File(localFilePath, fileToCopy);
+		return localFile.exists();
 	}
 
 }
