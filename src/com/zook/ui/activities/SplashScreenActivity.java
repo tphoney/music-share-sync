@@ -15,7 +15,7 @@ import android.view.MenuItem;
  * 
  */
 public class SplashScreenActivity extends Activity {
-
+	
 	/**
 	 * Main layout and display creation hook
 	 */
@@ -56,6 +56,11 @@ public class SplashScreenActivity extends Activity {
 			startActivity(intent);
 			returnVal = true;
 			break;
+		case R.id.home_menu_tree_test:
+				intent = new Intent(SplashScreenActivity.this,
+						TreeTestScreenActivity.class);
+				startActivity(intent);
+				returnVal = true;
 		default:
 			returnVal = super.onMenuItemSelected(featureId, item);
 			break;

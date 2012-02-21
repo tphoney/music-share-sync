@@ -19,14 +19,15 @@
     
     <string name="home_menu_sync">Start to Sync</string>
     <string name="home_menu_settings">Settings</string>
-    <string name="home_menu_tree_test">DW Tree Test</string>
+    <string name="home_menu_tree_test">Tree Test</string>
     
-
     <integer name="progressDialogInit">0</integer>
- 	<integer name="progressDialogDismiss">1</integer>
+    <integer name="progressDialogDismiss">1</integer>
     <integer name="progressDialogSetProgress">2</integer>
     <integer name="progressDialogSetSecondaryProgress">3</integer>
     <integer name="progressDialogSetTitle">4</integer>
     <integer name="progressSomethingWentWrong">5</integer>
+    <string name="expand_collapse_icon">Expand collapse Icon</string>
+
 
 </resources>
