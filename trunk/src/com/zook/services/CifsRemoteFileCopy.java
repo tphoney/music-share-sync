@@ -107,6 +107,13 @@ public class CifsRemoteFileCopy implements RemoteFileCopyInterface {
 			throw new RemoteFileCopyException(e);
 		}
 	}
+	
+	public boolean isLeaf(final String fullpath)
+			throws MalformedURLException, SmbException {
+		final SmbFile path = new SmbFile(SMB__FILE_PREFIX + smbHost
+				+ smbifyPath(fullpath), authentication);
+		return path.isFile();
+	}
 
 	public void copyFileTo(final String remoteFilePath,
 			final String remoteFileName, final String localDir,

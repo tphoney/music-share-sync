@@ -20,6 +20,9 @@ public interface RemoteFileCopyInterface {
 	boolean fileExistsLocally(final String remoteFilePath, final String fileToCopy,
 			final String destinationFolder)
 			throws RemoteFileCopyException;
+	
+	boolean isLeaf(final String fullPath)
+			throws Exception;
 
 	void copyFileTo(final String remoteFilePath, final String fileToCopy,
 			final String destinationFolder, final Handler progressHandler)

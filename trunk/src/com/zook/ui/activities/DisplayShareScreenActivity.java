@@ -1,5 +1,6 @@
 package com.zook.ui.activities;
 
+
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -23,6 +24,7 @@ import com.zook.services.CopyThread;
 import com.zook.services.RemoteFileCopyInterface;
 import com.zook.ui.ExceptionDialog;
 import com.zook.ui.MyCustomArrayAdapter;
+import com.zook.ui.utils.UIUtils;
 
 public class DisplayShareScreenActivity extends ListActivity {
 
@@ -52,7 +54,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 					settings.getString("remoteHostname",
 							getString(R.string.preferences_remote_hostname)));
 		} catch (Exception e) {
-			new ExceptionDialog(e, this);
+			UIUtils.displayErrorMessage(e, this);
 		}
 
 		final ListView listView = getListView();
@@ -136,7 +138,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 		try {
 			returnVal = cifsInteraction.isLeaf(currentDirectory, itemClicked);
 		} catch (Exception e) {
-			new ExceptionDialog(e, this);
+			UIUtils.displayErrorMessage(e, this);
 		}
 		return returnVal;
 	}
@@ -172,7 +174,7 @@ public class DisplayShareScreenActivity extends ListActivity {
 			setListAdapter(new MyCustomArrayAdapter(this, this, R.layout.row,
 					dirContents, dirContentsStatus));
 		} catch (Exception e) {
-			new ExceptionDialog(e, this);
+			UIUtils.displayErrorMessage(e, this);
 		}
 		getListView().setFastScrollEnabled(true);
 	}
@@ -182,10 +184,12 @@ public class DisplayShareScreenActivity extends ListActivity {
 		try {
 			returnVal = cifsInteraction.getParent(currentDirectory);
 		} catch (Exception e) {
-			new ExceptionDialog(e, this);
+			UIUtils.displayErrorMessage(e, this);
 		}
 		return returnVal;
 	}
+
+	
 
 	private void refreshMedia() {
 		sendBroadcast(new Intent(
@@ -255,4 +259,42 @@ public class DisplayShareScreenActivity extends ListActivity {
 					R.integer.progressDialogDismiss, ""));
 		}
 	}
+
+	class CopyFile implements Runnable {
+		private transient final String fileToCopy;
+
+		public CopyFile(final String inputFile) {
+			fileToCopy = inputFile;
+		}
+
+		public void run() {
+			try {
+				cifsInteraction.copyFileTo(currentDirectory, fileToCopy,
+						getString(R.string.preferences_local_basedir),
+						progressHandler);
+			} catch (Exception e) {
+				UIUtils.displayErrorMessage(e, DisplayShareScreenActivity.this);
+			}
+		}
+	}
+
+	class CopyFolder implements Runnable {
+		private transient final String folderToCopy;
+
+		public CopyFolder(String inputFile) {
+			folderToCopy = inputFile;
+		}
+
+		public void run() {
+			try {
+				cifsInteraction.copyFolder(currentDirectory,
+						folderToCopy,
+						getString(R.string.preferences_local_basedir),
+						progressHandler);
+			} catch (Exception e) {
+				UIUtils.displayErrorMessage(e, DisplayShareScreenActivity.this);
+			}
+		}
+	}
+
 }
