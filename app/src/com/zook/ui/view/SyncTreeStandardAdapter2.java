@@ -1,14 +1,15 @@
 package com.zook.ui.view;
 
+import java.util.HashMap;
 import java.util.Set;
 
-import com.zook.tree.AbstractTreeViewAdapter;
+import com.zook.tree.extended.AbstractTreeViewAdapter;
 //import com.zook.tree.R;
 //import android.R;
 import com.zook.R;
 
-import com.zook.tree.TreeNodeInfo;
-import com.zook.tree.TreeStateManager;
+import com.zook.tree.extended.TreeNodeInfo;
+import com.zook.tree.extended.TreeStateManager;
 
 import android.app.Activity;
 import android.view.View;
@@ -19,7 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
-public class SyncTreeStandardAdapter extends AbstractTreeViewAdapter<Long> {
+public class SyncTreeStandardAdapter2 extends AbstractTreeViewAdapter<Long, HashMap> {
 
     private final Set<Long> selected;
 
@@ -39,9 +40,9 @@ public class SyncTreeStandardAdapter extends AbstractTreeViewAdapter<Long> {
         }
     }
 
-    public SyncTreeStandardAdapter(final Activity treeViewListDemo,
+    public SyncTreeStandardAdapter2(final Activity treeViewListDemo,
             final Set<Long> selected,
-            final TreeStateManager<Long> treeStateManager,
+            final TreeStateManager<Long, HashMap> treeStateManager,
             final int numberOfLevels) {
         super(treeViewListDemo, treeStateManager, numberOfLevels);
         this.selected = selected;
@@ -49,25 +50,28 @@ public class SyncTreeStandardAdapter extends AbstractTreeViewAdapter<Long> {
 
     @SuppressWarnings("unused")
 	private String getDescription(final long id) {
-    	final String desc = getManager().getNodeInfo(id).getDescription();
+    	final String desc = (String)getManager().getNodeInfo(id).getParams().get("description");
     	return desc;
     }
 
     @Override
-    public View getNewChildView(final TreeNodeInfo<Long> treeNodeInfo) {
+    public View getNewChildView(final TreeNodeInfo<Long, HashMap> treeNodeInfo) {
         final LinearLayout viewLayout = (LinearLayout) getActivity().getLayoutInflater().inflate(R.layout.demo_list_item, null);
         return updateView(viewLayout, treeNodeInfo);
     }
 
     @Override
-    public LinearLayout updateView(final View view, final TreeNodeInfo<Long> treeNodeInfo) {
+    public LinearLayout updateView(final View view, final TreeNodeInfo<Long, HashMap> treeNodeInfo) {
     	//get the defined ui components on the screen
         final LinearLayout viewLayout = (LinearLayout) view;
         final TextView descriptionView = (TextView) viewLayout.findViewById(R.id.demo_list_item_description);
         final CheckBox box = (CheckBox) viewLayout.findViewById(R.id.demo_list_checkbox);
         
         //setup initial values
-        descriptionView.setText(treeNodeInfo.getDescription());
+        if (treeNodeInfo.getParams() != null && treeNodeInfo.getParams().get("description") != null)
+        {
+        	descriptionView.setText((String)treeNodeInfo.getParams().get("description"));
+        }
         
         box.setTag(treeNodeInfo.getId());
         if (treeNodeInfo.isWithChildren()) {
@@ -83,7 +87,7 @@ public class SyncTreeStandardAdapter extends AbstractTreeViewAdapter<Long> {
     @Override
     public void handleItemClick(final View view, final Object id) {
         final Long longId = (Long) id;
-        final TreeNodeInfo<Long> info = getManager().getNodeInfo(longId);
+        final TreeNodeInfo<Long, HashMap> info = getManager().getNodeInfo(longId);
         if (info.isWithChildren()) {
             super.handleItemClick(view, id);
         } else {
