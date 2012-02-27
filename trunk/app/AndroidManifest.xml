@@ -21,6 +21,7 @@
         <activity android:name=".SettingsScreenActivity"></activity>
         <activity android:name=".DisplayShareScreenActivity" android:configChanges="keyboardHidden|orientation"></activity>
         <activity android:name=".TreeTestScreenActivity" android:configChanges="keyboardHidden|orientation"></activity>
+        <activity android:name=".TreeTestScreenActivity2" android:configChanges="keyboardHidden|orientation"></activity>
 
     </application>
 </manifest>

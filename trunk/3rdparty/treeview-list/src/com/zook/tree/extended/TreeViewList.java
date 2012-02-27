@@ -1,4 +1,4 @@
-package com.zook.tree;
+package com.zook.tree.extended;
 
 //import android.R;
 import com.zook.R;
@@ -39,7 +39,7 @@ public class TreeViewList extends ListView {
     private Drawable indicatorBackgroundDrawable;
     private int indentWidth = 0;
     private int indicatorGravity = 0;
-    private AbstractTreeViewAdapter< ? > treeAdapter;
+    private AbstractTreeViewAdapter< ?,? > treeAdapter;
     private boolean collapsible;
     private boolean handleTrackballPress;
 
@@ -90,7 +90,7 @@ public class TreeViewList extends ListView {
             throw new TreeConfigurationException(
                     "The adapter is not of TreeViewAdapter type");
         }
-        treeAdapter = (AbstractTreeViewAdapter< ? >) adapter;
+        treeAdapter = (AbstractTreeViewAdapter< ?,? >) adapter;
         syncAdapter();
         super.setAdapter(treeAdapter);
     }
