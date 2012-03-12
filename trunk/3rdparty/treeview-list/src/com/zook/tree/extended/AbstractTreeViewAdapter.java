@@ -44,7 +44,7 @@ public abstract class AbstractTreeViewAdapter<T,S> extends BaseAdapter implement
     private Drawable rowBackgroundDrawable;
 
     private final OnClickListener indicatorClickListener = new OnClickListener() {
-        @Override
+        
         public void onClick(final View v) {
             @SuppressWarnings("unchecked")
             final T id = (T) v.getTag();
@@ -110,12 +110,12 @@ public abstract class AbstractTreeViewAdapter<T,S> extends BaseAdapter implement
         treeStateManager.unregisterDataSetObserver(observer);
     }
 
-    @Override
+    
     public int getCount() {
         return treeStateManager.getVisibleCount();
     }
 
-    @Override
+    
     public Object getItem(final int position) {
         return getItemId(position);
     }
@@ -162,7 +162,7 @@ public abstract class AbstractTreeViewAdapter<T,S> extends BaseAdapter implement
         return R.layout.tree_list_item_wrapper;
     }
 
-    @Override
+    
     public final View getView(final int position, final View convertView,
             final ViewGroup parent) {
         Log.d(TAG, "Creating a view based on " + convertView

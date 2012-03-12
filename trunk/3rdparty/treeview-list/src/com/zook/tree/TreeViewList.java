@@ -105,7 +105,7 @@ public class TreeViewList extends ListView {
         treeAdapter.setCollapsible(collapsible);
         if (handleTrackballPress) {
             setOnItemClickListener(new OnItemClickListener() {
-                @Override
+                
                 public void onItemClick(final AdapterView< ? > parent,
                         final View view, final int position, final long id) {
                     treeAdapter.handleItemClick(view, view.getTag());
