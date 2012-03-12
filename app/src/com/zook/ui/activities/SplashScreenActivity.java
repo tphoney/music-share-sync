@@ -58,7 +58,7 @@ public class SplashScreenActivity extends Activity {
 			break;
 		case R.id.home_menu_delete:
 			intent = new Intent(SplashScreenActivity.this,
-					SettingsScreenActivity.class);
+					DeleteScreenActivity.class);
 			startActivity(intent);
 			returnVal = true;
 			break;
