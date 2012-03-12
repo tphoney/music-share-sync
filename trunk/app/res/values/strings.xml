@@ -18,7 +18,7 @@
     <string name="smiley">:)</string>
     
     <string name="home_menu_sync">Start to Sync</string>
-    <string name="home_menu_settings">Settings</string>
+    <string name="home_menu_settings">Settings</string><string name="home_menu_delete">Delete local content</string><string name="home_menu_refresh">Refresh local content</string>
     <string name="home_menu_tree_test">Tree Test</string>
     <string name="home_menu_tree_test2">Tree Test 2</string>
     
