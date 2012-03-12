@@ -198,13 +198,19 @@ public class TreeTestScreenActivity extends Activity implements ITreeViewActivit
 	 */
 	public void setTreeAdapter(final TreeType newTreeType) {
 		this.treeType = newTreeType;
-		switch (newTreeType) {
-		case SIMPLE:
-			treeView.setAdapter(simpleAdapter);
-			break;
-		default:
-			treeView.setAdapter(simpleAdapter);
-		}
+		//commented out until declan gets his finger out :D
+//		switch (newTreeType) {
+//		case SIMPLE:
+//			treeView.setAdapter(simpleAdapter);
+//			break;
+//		case FANCY:
+//			treeView.setAdapter(simpleAdapter);
+//			break;
+//		default:
+//			treeView.setAdapter(simpleAdapter);
+//			break;
+//		}
+		treeView.setAdapter(simpleAdapter);
 	}
 
 	/**

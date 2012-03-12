@@ -62,12 +62,12 @@ public class SplashScreenActivity extends Activity {
 				startActivity(intent);
 				returnVal = true;
 				break;
-		case R.id.home_menu_tree_test2:
-			intent = new Intent(SplashScreenActivity.this,
-					TreeTestScreenActivity2.class);
-			startActivity(intent);
-			returnVal = true;
-			break;
+//		case R.id.home_menu_tree_test2:
+//			intent = new Intent(SplashScreenActivity.this,
+//					TreeTestScreenActivity2.class);
+//			startActivity(intent);
+//			returnVal = true;
+//			break;
 		default:
 			returnVal = super.onMenuItemSelected(featureId, item);
 			break;
