@@ -4,70 +4,45 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import jcifs.smb.SmbFile;
+
 import android.os.Environment;
 
-public class LocalCrap  {
-	public List<String> getDirectoryContents(final String baseDir)
-			throws RemoteFileCopyException {
+public class LocalCrap {
+	static final String appsfolder = "MusicShareSync";
+	final File root = Environment.getExternalStorageDirectory();
+
+	public List<String> getDirectoryContents(final String baseDir) {
 		final List<String> returnVal = new ArrayList<String>();
-		
-		final File root = Environment.getExternalStorageDirectory();
-		final String localFilePath = root.getPath() + "/" + baseDir;
-		final File localpasdasd  = new File(localFilePath);
+		final String localFilePath = root.getPath() + "/" + appsfolder + "/"
+				+ baseDir;
+		final File localpasdasd = new File(localFilePath);
 		final String[] pathContents = localpasdasd.list();
 		for (String file : pathContents) {
 			returnVal.add(file);
-		}	
-		
+		}
+
 		return returnVal;
 	}
 
-	
-	public boolean isLeaf(final String baseDir, final String itemClicked)
-			 {
-		return true;
-	}
-	
-	public boolean isLeaf(final String fullpath)
-			 {
-		return true;
+	public boolean isLeaf(final String baseDir, final String itemClicked) {
+		final File path = new File(root.getPath() + "/" + appsfolder + "/"
+				+ baseDir + "/" + itemClicked);
+		return path.isFile();
 	}
 
-	
-
-	private String smbifyPath(final String input) {
-		String returnVal = input;
-
-		// TODO replace with proper library
-		if (returnVal.charAt(0) != '/') {
-			returnVal = '/' + returnVal;
-		}
-		final int length = returnVal.length() - 1;
-		if (returnVal.charAt(length) != '/') {
-			returnVal = returnVal + '/';
-		}
-
-		if (returnVal.contains(" ")) {
-			returnVal.replaceAll(" ", "\\ ");
-		}
-		if (returnVal.contains("//")) {
-			returnVal.replaceAll("/*", "/");
-		}
+	public String getParent(final String baseDir) {
+		String returnVal;
+		final File path = new File(root.getPath() + "/" + appsfolder + "/"
+				+ baseDir);
+		returnVal = path.getParent();
+		returnVal = returnVal.replaceAll("/mnt/sdcard/" + appsfolder, "");
+		returnVal += '/';
 		return returnVal;
-	}
-
-	public String getParent(final String baseDir)
-			 {
-		String returnVal = "";
-		
-			return returnVal;
-
-		
 	}
 
 	public void removeFileLocally(final String remoteFilePath,
-			final String fileToCopy, final String destinationFolder)
-			throws RemoteFileCopyException {
+			final String fileToCopy, final String destinationFolder) {
 		final File root = Environment.getExternalStorageDirectory();
 		final File localFilePath = new File(root.getPath() + "/"
 				+ destinationFolder + "/" + remoteFilePath);
@@ -76,20 +51,28 @@ public class LocalCrap  {
 		final File localFile = new File(localFilePath, fileToCopy);
 
 		if (localFile.exists()) {
-			localFile.delete();
+			if (localFile.isDirectory()) {
+				deleteDir(localFile);
+			} else {
+				localFile.delete();
+			}
 		}
 
 	}
 
-	public boolean fileExistsLocally(final String remoteFilePath,
-			final String fileToCopy, final String destinationFolder)
-			throws RemoteFileCopyException {
-		final File root = Environment.getExternalStorageDirectory();
-		final File localFilePath = new File(root.getPath() + "/"
-				+ destinationFolder + "/" + remoteFilePath);
+	private static boolean deleteDir(File node) {
+		if (node.isDirectory()) {
+			String[] children = node.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(node, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+		}
 
-		final File localFile = new File(localFilePath, fileToCopy);
-		return localFile.exists();
+		// The directory is now empty so delete it
+		return node.delete();
 	}
 
 }
